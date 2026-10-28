@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>开场动画原型 · 白蝴蝶 / 4.2s</title>
+<style>
+  :root{
+    --sans: Inter, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+    --serif: "Noto Serif SC", "Source Han Serif SC", Georgia, "Times New Roman", serif;
+    --mono: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:#000;overflow:hidden;-webkit-font-smoothing:antialiased}
+  body{font-family:var(--sans);color:#fff}
+
+  .wrap{position:fixed;inset:0;display:grid;place-items:center;background:#000}
+  .stage{
+    position:relative;width:1440px;height:900px;background:#000;
+    transform-origin:center center;overflow:hidden;
+  }
+
+  /* ---------- 内容层（在画布下面，从裂口里透出来） ---------- */
+  .content{position:absolute;inset:0;will-change:filter,opacity,transform}
+  .content .row{position:absolute;left:72px;right:72px;display:flex;justify-content:space-between;align-items:baseline}
+  .nav{top:30px}
+  .brand{font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:.02em;color:#EDEDED}
+  .nav-list{font-family:var(--mono);font-size:13px;color:#8A8A8A;letter-spacing:.02em}
+  .lang{font-family:var(--mono);font-size:13px;color:#fff;letter-spacing:.02em}
+
+  .kicker{position:absolute;left:72px;top:196px;font-family:var(--mono);font-size:12px;color:#8A8A8A;letter-spacing:.04em}
+  .name{position:absolute;left:66px;top:222px;font-family:var(--serif);font-size:150px;line-height:1;color:#fff;letter-spacing:-.01em}
+  .tag-cn{position:absolute;left:72px;top:462px;font-family:var(--sans);font-size:30px;font-weight:300;color:#E6E6E6;letter-spacing:.01em}
+  .tag-en{position:absolute;left:72px;top:518px;font-size:15px;font-weight:300;color:#8A8A8A}
+  .meta{position:absolute;left:72px;top:686px;font-family:var(--mono);font-size:12px;color:#7A7A7A;letter-spacing:.02em}
+  .cue{position:absolute;left:72px;top:806px;font-family:var(--mono);font-size:11px;color:#7A7A7A;letter-spacing:.06em}
+
+  /* ---------- 画布：黑幕 + 轨迹 + 裂口 ---------- */
+  #fx{position:absolute;inset:0;width:1440px;height:900px;pointer-events:none}
+
+  /* ---------- 蝴蝶 ---------- */
+  #bfly{
+    position:absolute;left:0;top:0;width:250px;height:auto;
+    transform-origin:62% 50%;will-change:transform,opacity;
+    pointer-events:none;user-select:none;
+  }
+
+  /* ---------- 控制条 ---------- */
+  .hud{
+    position:fixed;left:50%;bottom:26px;transform:translateX(-50%);
+    display:flex;align-items:center;gap:14px;
+    padding:10px 16px;border:1px solid rgba(255,255,255,.14);border-radius:999px;
+    background:rgba(10,10,10,.72);backdrop-filter:blur(14px);
+    font-family:var(--mono);font-size:11px;color:#9A9A9A;letter-spacing:.04em;
+    transition:opacity .5s ease;z-index:9;
+  }
+  .hud.idle{opacity:.14}
+  .hud:hover{opacity:1}
+  .hud button{
+    white-space:nowrap;
+    appearance:none;border:0;background:transparent;color:#DADADA;
+    font-family:var(--mono);font-size:11px;letter-spacing:.04em;cursor:pointer;
+    padding:4px 8px;border-radius:6px;transition:color .2s,background .2s;
+  }
+  .hud button:hover{color:#fff;background:rgba(255,255,255,.08)}
+  .hud button.on{color:#000;background:#fff}
+  .hud input[type=range]{
+    appearance:none;width:320px;height:2px;background:rgba(255,255,255,.2);border-radius:2px;outline:none;cursor:pointer;
+  }
+  .hud input[type=range]::-webkit-slider-thumb{
+    appearance:none;width:10px;height:10px;border-radius:50%;background:#fff;cursor:pointer;
+  }
+  .hud input[type=range]::-moz-range-thumb{
+    width:10px;height:10px;border:0;border-radius:50%;background:#fff;cursor:pointer;
+  }
+  .hud .sep{width:1px;height:14px;background:rgba(255,255,255,.14)}
+  .hud .t{min-width:104px;color:#fff;font-variant-numeric:tabular-nums}
+  .hud .phase{min-width:60px;color:#7A7A7A;white-space:nowrap}
+  .hud .hint{color:#5A5A5A;white-space:nowrap}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="stage" id="stage">
+
+    <!-- 内容层 -->
+    <div class="content" id="content">
+      <div class="row nav">
+        <div class="brand">GCH</div>
+        <div class="nav-list">WORK ／ ABOUT ／ NOTES ／ LAB</div>
+        <div class="lang">CN ／ EN</div>
+      </div>
+      <div class="kicker">PORTFOLIO ／ 作品集 2026</div>
+      <div class="name">GCH</div>
+      <div class="tag-cn">把复杂的事情做轻，把轻的事情做久。</div>
+      <div class="tag-en">Designer &amp; front-end engineer. Making heavy things light.</div>
+      <div class="meta">OPEN TO ／ 2027 Q1 合作　　　BASED ／ 上海　　　MAIL ／ hello@gch.studio</div>
+      <div class="cue">SCROLL ／ 向下</div>
+    </div>
+
+    <!-- 黑幕 / 轨迹 / 裂口 -->
+    <canvas id="fx" width="1440" height="900"></canvas>
+
+    <!-- 蝴蝶 -->
+    <img id="bfly" src="data:image/png;base64,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" alt="">
+  </div>
+</div>
+
+<div class="hud" id="hud">
+  <button id="btnPlay">暂停</button>
+  <button id="btnReplay">重播</button>
+  <div class="sep"></div>
+  <span class="t" id="tTime">0.00 / 4.40</span>
+  <input id="scrub" type="range" min="0" max="4.4" step="0.005" value="0">
+  <div class="sep"></div>
+  <span class="phase" id="tPhase">黑场</span>
+  <button id="btnSlow">0.25×</button>
+  <div class="sep"></div>
+  <span class="hint">空格 播放 · ←→ 逐帧 · R 重播</span>
+</div>
+
+<script>
+const W = 1440, H = 900;
+
+const TL = {
+  black:  [0.00, 0.30],
+  fly:    [0.30, 2.00],
+  settle: [2.00, 2.45],
+  freeze: [2.45, 2.60],
+  open:   [2.60, 3.80],
+  focus:  [2.70, 3.70],
+  exit:   [3.82, 4.40],
+  END:    4.40
+};
+
+/* 飞行路径：起点贴在左边缘外侧一点点，一进场就贴边 */
+const P0 = [-40, 520], P1 = [170, 592], P2 = [430, 468], P3 = [720, 414];
+
+function bez(u){
+  const m = 1 - u;
+  const a = m*m*m, b = 3*m*m*u, c = 3*m*u*u, d = u*u*u;
+  return [a*P0[0]+b*P1[0]+c*P2[0]+d*P3[0], a*P0[1]+b*P1[1]+c*P2[1]+d*P3[1]];
+}
+function tang(u){
+  const m = 1 - u;
+  const dx = 3*m*m*(P1[0]-P0[0]) + 6*m*u*(P2[0]-P1[0]) + 3*u*u*(P3[0]-P2[0]);
+  const dy = 3*m*m*(P1[1]-P0[1]) + 6*m*u*(P2[1]-P1[1]) + 3*u*u*(P3[1]-P2[1]);
+  return Math.atan2(dy, dx) * 180 / Math.PI;
+}
+function norm(u){
+  const a = tang(u) * Math.PI / 180;
+  return [Math.sin(a), -Math.cos(a)];
+}
+
+const clamp01 = v => v < 0 ? 0 : v > 1 ? 1 : v;
+const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
+const easeInOutCubic = t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2;
+const smoothstep = t => t*t*(3-2*t);
+const rnd = i => { const x = Math.sin(i*127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+function nz(u, seed){
+  return Math.sin(u*11.3 + seed)*0.5 + Math.sin(u*23.7 + seed*2.1)*0.3 + Math.sin(u*46.9 + seed*3.7)*0.2;
+}
+
+/* 速度曲线：整体减速，中段略微"试探"地收一下，不是一根匀速滑轨 */
+function uAt(t){
+  if (t <= TL.fly[0]) return 0;
+  if (t >= TL.fly[1]) return 1;
+  const tn = (t - TL.fly[0]) / (TL.fly[1] - TL.fly[0]);
+  const e = 1 - Math.pow(1 - tn, 2.3);
+  return tn + (e - tn) * (1 - 0.42 * Math.sin(Math.PI * tn));
+}
+function tAtU(u){
+  let lo = 0, hi = 1;
+  for (let k = 0; k < 26; k++){
+    const mid = (lo + hi) / 2;
+    if (uAt(TL.fly[0] + mid * (TL.fly[1] - TL.fly[0])) < u) lo = mid; else hi = mid;
+  }
+  return TL.fly[0] + (lo + hi) / 2 * (TL.fly[1] - TL.fly[0]);
+}
+
+/* 上下浮动：贴着飞行方向漂，抵达后收掉，静止段必须是死的 */
+function bobAt(t){
+  if (t < TL.fly[0]) return 0;
+  const A = 17 * clamp01(1 - (t - TL.fly[1]) / 0.42);
+  if (A <= 0) return 0;
+  const ft = t - TL.fly[0];
+  return A * (Math.sin(2*Math.PI*0.78*ft + 0.6) + 0.6*Math.sin(2*Math.PI*0.31*ft + 2.1));
+}
+
+/* 轨迹采样：位置 = 曲线 + 法线方向的浮动，所以轨迹就是真实飞过的路 */
+const N = 260;
+const TRAIL = [];
+for (let i = 0; i <= N; i++){
+  const u = i / N;
+  const ti = tAtU(u);
+  const [x, y] = bez(u);
+  const [nx, ny] = norm(u);
+  const bo = bobAt(ti);
+  TRAIL.push({ u, x: x + nx*bo, y: y + ny*bo, t: ti, w: (1.5 + 8.2*u) * 1.5 });
+}
+
+const cvs = document.getElementById('fx');
+const ctx = cvs.getContext('2d');
+const bfly = document.getElementById('bfly');
+const content = document.getElementById('content');
+const scrub = document.getElementById('scrub');
+const tTime = document.getElementById('tTime');
+const tPhase = document.getElementById('tPhase');
+const hud = document.getElementById('hud');
+const btnPlay = document.getElementById('btnPlay');
+const btnReplay = document.getElementById('btnReplay');
+const btnSlow = document.getElementById('btnSlow');
+
+const DPR = Math.min(window.devicePixelRatio || 1, 2);
+cvs.width = W*DPR; cvs.height = H*DPR;
+cvs.style.width = W+'px'; cvs.style.height = H+'px';
+ctx.scale(DPR, DPR);
+
+const stage = document.getElementById('stage');
+function fit(){
+  const s = Math.min(window.innerWidth/W, window.innerHeight/H);
+  stage.style.transform = 'scale(' + s + ')';
+}
+window.addEventListener('resize', fit); fit();
+
+/* ---------------- 轨迹 ---------------- */
+function drawTrail(t, alphaMul){
+  if (alphaMul <= 0.001) return;
+  ctx.lineCap = 'round';
+  const body = bez(uAt(t));
+  const GAP = 58;
+  for (let i = 0; i < TRAIL.length - 1; i++){
+    const a = TRAIL[i], b = TRAIL[i+1];
+    if (a.t > t) break;
+    if (Math.hypot(b.x-body[0], b.y-body[1]) < GAP) break;
+    const age = t - a.t;
+    const wh = smoothstep(clamp01((age - 0.015) / 0.40));
+    const al = (0.04 + 0.96*wh) * alphaMul;
+    if (al < 0.012) continue;
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.strokeStyle = 'rgba(255,255,255,' + (al*0.13).toFixed(3) + ')';
+    ctx.lineWidth = b.w * 2.4;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.strokeStyle = 'rgba(255,255,255,' + al.toFixed(3) + ')';
+    ctx.lineWidth = b.w;
+    ctx.stroke();
+  }
+}
+
+/* ---------------- 裂口 ---------------- */
+/* 缝的中线：沿着蝴蝶飞过的轨迹，再顺着末端的切线延伸到画面右边 */
+const APEX_U = 0.93;
+const SEAM = (function(){
+  const pts = [];
+  const M = 74;
+  for (let i = 0; i <= M; i++){
+    const u = (i/M) * APEX_U;
+    const [x, y] = bez(u);
+    const [nx, ny] = norm(u);
+    pts.push({ x, y, nx, ny });
+  }
+  const last = pts[pts.length-1];
+  const th = tang(APEX_U) * Math.PI/180;
+  const dx = Math.cos(th), dy = Math.sin(th);
+  for (let k = 1; k <= 3; k++){
+    pts.push({ x: last.x + dx*28*k, y: last.y + dy*28*k, nx: Math.sin(th), ny: -Math.cos(th) });
+  }
+  for (let i = 0; i < pts.length; i++) pts[i].s = i / (pts.length - 1);
+  return pts;
+})();
+const APEX_S = (function(){
+  let best = 0, bd = 1e9;
+  const a = bez(APEX_U);
+  for (const p of SEAM){
+    const d = Math.hypot(p.x-a[0], p.y-a[1]);
+    if (d < bd){ bd = d; best = p.s; }
+  }
+  return best;
+})();
+
+function buildHole(openP){
+  if (openP <= 0.001) return null;
+  const maxD = 430 * openP + 330 * Math.pow(openP, 3);
+  const up = [], dn = [];
+  for (const p of SEAM){
+    const k = Math.pow(Math.abs(p.s - APEX_S) / Math.max(APEX_S, 0.001), 0.55);
+    const wob = 1 + 0.025 * nz(p.s * 4.0, 1.7);
+    const dU = maxD * k * wob;
+    const dN = maxD * k * wob * 0.86;
+    up.push([p.x + p.nx*dU, p.y + p.ny*dU]);
+    dn.push([p.x - p.nx*dN, p.y - p.ny*dN]);
+  }
+  return { up, dn, maxD };
+}
+
+function strokePoly(pts, w, style, dash){
+  if (dash) ctx.setLineDash(dash);
+  ctx.beginPath();
+  ctx.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+  ctx.lineWidth = w;
+  ctx.strokeStyle = style;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.stroke();
+  if (dash) ctx.setLineDash([]);
+}
+
+function drawLid(t){
+  const openP = easeInOutCubic(clamp01((t - TL.open[0]) / (TL.open[1] - TL.open[0])));
+  const lidAlpha = 1 - clamp01((t - 3.74) / 0.26);
+  const hole = buildHole(openP);
+
+  if (lidAlpha > 0.002){
+    const p = new Path2D();
+    p.rect(0, 0, W, H);
+    if (hole){
+      const { up, dn } = hole;
+      p.moveTo(up[0][0], up[0][1]);
+      for (let i = 1; i < up.length; i++) p.lineTo(up[i][0], up[i][1]);
+      for (let i = dn.length - 1; i >= 0; i--) p.lineTo(dn[i][0], dn[i][1]);
+      p.closePath();
+    }
+    ctx.fillStyle = 'rgba(0,0,0,' + lidAlpha.toFixed(3) + ')';
+    ctx.fill(p, 'evenodd');
+
+    if (hole){
+      const q = new Path2D();
+      const { up, dn } = hole;
+      q.moveTo(up[0][0], up[0][1]);
+      for (let i = 1; i < up.length; i++) q.lineTo(up[i][0], up[i][1]);
+      for (let i = dn.length - 1; i >= 0; i--) q.lineTo(dn[i][0], dn[i][1]);
+      q.closePath();
+      ctx.fillStyle = 'rgba(255,255,255,' + (0.030*lidAlpha).toFixed(4) + ')';
+      ctx.fill(q);
+    }
+  }
+
+  if (hole && openP > 0.01){
+    const fade = 1 - clamp01((t - 3.78) / 0.20);
+
+    /* 黑幕内侧的厚度阴影：让开口像"被撕开的一层"，不是一块透明玻璃 */
+    strokePoly(hole.up, 46, 'rgba(0,0,0,' + (0.30*fade).toFixed(3) + ')');
+    strokePoly(hole.dn, 46, 'rgba(0,0,0,' + (0.30*fade).toFixed(3) + ')');
+    strokePoly(hole.up, 22, 'rgba(0,0,0,' + (0.26*fade).toFixed(3) + ')');
+    strokePoly(hole.dn, 22, 'rgba(0,0,0,' + (0.26*fade).toFixed(3) + ')');
+
+    /* 缝口白边：宽度沿路径起伏，再叠一层扩散，读起来是光不是描边 */
+    const a0 = 0.95 * fade;
+    const toPath = (pts) => {
+      const q = new Path2D();
+      q.moveTo(pts[0][0], pts[0][1]);
+      for (let i = 1; i < pts.length; i++) q.lineTo(pts[i][0], pts[i][1]);
+      return q;
+    };
+    const pu = toPath(hole.up), pd = toPath(hole.dn);
+    [[1, 1], [2.2, 0.18], [4.0, 0.055]].forEach(pair => {
+      ctx.lineWidth = 2.2 * pair[0];
+      ctx.strokeStyle = 'rgba(255,255,255,' + (a0 * pair[1]).toFixed(3) + ')';
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.stroke(pu);
+      ctx.stroke(pd);
+    });
+
+    /* 纤维：断口上挂着的细毛，往黑幕那侧飘 */
+    for (let i = 0; i < 44; i++){
+      const s = rnd(i*3.7 + 1);
+      const idx = Math.min(SEAM.length-1, Math.floor(s * (SEAM.length-1)));
+      const p = SEAM[idx];
+      const side = (i % 2 === 0) ? 1 : -1;
+      const arr = side > 0 ? hole.up : hole.dn;
+      const base = arr[idx];
+      const len = 7 + 17*rnd(i*5.1+2);
+      const ux = p.nx*side, uy = p.ny*side;
+      const k = Math.pow(Math.abs(p.s - APEX_S)/Math.max(APEX_S,1-APEX_S), 0.55);
+      if (k < 0.12) continue;
+      ctx.beginPath();
+      ctx.moveTo(base[0], base[1]);
+      ctx.lineTo(base[0] + ux*len, base[1] + uy*len);
+      ctx.lineWidth = 0.8 + 0.7*rnd(i*1.3);
+      ctx.strokeStyle = 'rgba(255,255,255,' + (0.5*fade*(0.4+0.6*rnd(i*9.1))).toFixed(3) + ')';
+      ctx.lineCap = 'round';
+      ctx.stroke();
+    }
+
+    /* 碎屑：断口一路崩出来的白点，往外飘一段就消失 */
+    for (let i = 0; i < 46; i++){
+      const s = rnd(i*2.9 + 5);
+      const idx = Math.min(SEAM.length-1, Math.floor(s * (SEAM.length-1)));
+      const p = SEAM[idx];
+      const side = rnd(i*7.7) > 0.5 ? 1 : -1;
+      const arr = side > 0 ? hole.up : hole.dn;
+      const base = arr[idx];
+      const birth = TL.open[0] + 1.05 * Math.pow(Math.abs(p.s - APEX_S)/Math.max(APEX_S,1-APEX_S), 0.55);
+      const age = t - birth;
+      if (age < 0 || age > 1.15) continue;
+      const drift = 26 + 78*age;
+      const jx = (rnd(i*11.3)-0.5) * 26;
+      const jy = (rnd(i*13.7)-0.5) * 26;
+      ctx.beginPath();
+      ctx.arc(base[0] + p.nx*side*drift + jx, base[1] + p.ny*side*drift + jy,
+              0.7 + 1.5*rnd(i*3.1), 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(255,255,255,' + (0.72*(1-age/1.15)*fade).toFixed(3) + ')';
+      ctx.fill();
+    }
+  }
+  return openP;
+}
+
+function drawResidual(t){
+  const a = clamp01((t - 3.90) / 0.34) * 0.5;
+  if (a <= 0.01) return;
+  ctx.beginPath();
+  ctx.moveTo(0, 716);
+  ctx.bezierCurveTo(240, 716, 460, 760, 720, 760);
+  ctx.strokeStyle = 'rgba(255,255,255,' + a.toFixed(3) + ')';
+  ctx.lineWidth = 1.4;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(720, 760); ctx.lineTo(1368, 760);
+  ctx.strokeStyle = 'rgba(255,255,255,' + (a*0.28).toFixed(3) + ')';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+}
+
+/* ---------------- 蝴蝶 ---------------- */
+const BASE_W = 172;
+function layoutButterfly(t){
+  const u = uAt(t);
+  const [x0, y0] = bez(u);
+  const bo = bobAt(t);
+  const [nx, ny] = norm(u);
+
+  const flyT = Math.min(t, TL.fly[1]);
+  const settleT = Math.max(0, Math.min(t, TL.settle[1]) - TL.fly[1]);
+  const phase = 2*Math.PI*(5.2*flyT + 2.4*settleT);
+
+  let amp = 0;
+  if (t > TL.fly[0] && t < TL.settle[1]){
+    amp = 0.085 * clamp01(1 - Math.max(0, t - TL.fly[1]) / 0.42);
+  }
+  const flap = Math.abs(Math.sin(phase));
+
+  const s = 1 - 0.08*u;
+  const w = BASE_W * s;
+  const h = w * (620/573);
+
+  let rot = tang(u) + 4.5*Math.sin(2*Math.PI*0.85*(t-TL.fly[0]) + 1.1);
+  rot = Math.max(-24, Math.min(18, rot));
+  if (t > TL.fly[1]) rot += Math.min(1, (t - TL.fly[1]) / 0.5) * 7;
+
+  const sy = 1 - amp*flap*1.2;
+  const sx = 1 + amp*flap*0.2;
+
+  let ox = 0, oy = 0, op = (t < TL.fly[0]) ? 0 : 1;
+  if (t > TL.exit[0]){
+    const p = easeOutCubic(clamp01((t - TL.exit[0]) / (TL.exit[1] - TL.exit[0])));
+    ox = 300*p; oy = -280*p; op = 1 - clamp01((p - 0.25)/0.6);
+  }
+
+  bfly.style.width = w + 'px';
+  bfly.style.height = h + 'px';
+  bfly.style.opacity = op.toFixed(3);
+  bfly.style.transform =
+    'translate(' + (x0 + nx*bo - w*0.62 + ox).toFixed(2) + 'px,' + (y0 + ny*bo - h*0.5 + oy).toFixed(2) + 'px) ' +
+    'rotate(' + rot.toFixed(2) + 'deg) scale(' + sx.toFixed(4) + ',' + sy.toFixed(4) + ')';
+}
+
+/* ---------------- 内容 ---------------- */
+function layoutContent(t){
+  const p = easeOutCubic(clamp01((t - TL.focus[0]) / (TL.focus[1] - TL.focus[0])));
+  const blur = 9 * (1 - p);
+  const op = 0.40 + 0.60*p;
+  const y = 16 * (1 - p);
+  const sc = 1.028 - 0.028*p;
+  content.style.filter = blur > 0.05 ? 'blur(' + blur.toFixed(2) + 'px)' : 'none';
+  content.style.opacity = op.toFixed(3);
+  content.style.transform = 'translateY(' + y.toFixed(2) + 'px) scale(' + sc.toFixed(4) + ')';
+  content.style.transformOrigin = '50% 46%';
+}
+
+function render(t){
+  ctx.clearRect(0, 0, W, H);
+  const openP = easeInOutCubic(clamp01((t - TL.open[0]) / (TL.open[1] - TL.open[0])));
+  drawLid(t);
+  drawTrail(t, 1 - clamp01((openP - 0.05) / 0.30));
+  drawResidual(t);
+  layoutContent(t);
+  layoutButterfly(t);
+}
+
+let t = 0, playing = true, rate = 1, last = performance.now();
+
+function phaseName(t){
+  if (t < TL.black[1]) return '黑场';
+  if (t < TL.fly[1]) return '飞行';
+  if (t < TL.settle[1]) return '抵达';
+  if (t < TL.open[0]) return '静止';
+  if (t < TL.open[1]) return '裂开';
+  if (t < TL.focus[1]) return '对焦';
+  return '落位';
+}
+
+function tick(now){
+  const dt = Math.min(0.05, (now - last)/1000);
+  last = now;
+  if (playing){
+    t += dt * rate;
+    if (t >= TL.END){ t = TL.END; playing = false; btnPlay.textContent = '播放'; }
+  }
+  render(t);
+  scrub.value = t;
+  tTime.textContent = t.toFixed(2).padStart(4,'0') + ' / ' + TL.END.toFixed(2);
+  tPhase.textContent = phaseName(t);
+  requestAnimationFrame(tick);
+}
+
+btnPlay.addEventListener('click', () => {
+  if (t >= TL.END) t = 0;
+  playing = !playing;
+  btnPlay.textContent = playing ? '暂停' : '播放';
+});
+btnReplay.addEventListener('click', () => { t = 0; playing = true; btnPlay.textContent = '暂停'; });
+btnSlow.addEventListener('click', () => {
+  rate = rate === 1 ? 0.25 : 1;
+  btnSlow.classList.toggle('on', rate !== 1);
+});
+scrub.addEventListener('input', e => { t = parseFloat(e.target.value); playing = false; btnPlay.textContent = '播放'; });
+
+window.addEventListener('keydown', e => {
+  if (e.code === 'Space'){ e.preventDefault(); btnPlay.click(); }
+  if (e.code === 'ArrowRight'){ e.preventDefault(); playing = false; btnPlay.textContent='播放'; t = Math.min(TL.END, t + 1/60); }
+  if (e.code === 'ArrowLeft'){ e.preventDefault(); playing = false; btnPlay.textContent='播放'; t = Math.max(0, t - 1/60); }
+  if (e.key === 'r' || e.key === 'R'){ btnReplay.click(); }
+});
+
+let idleTimer;
+function wake(){
+  hud.classList.remove('idle');
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(() => hud.classList.add('idle'), 2600);
+}
+window.addEventListener('pointermove', wake);
+window.addEventListener('pointerdown', wake);
+wake();
+
+(function(){
+  const m = location.hash.match(/t=([0-9.]+)/);
+  if (m){ t = Math.min(TL.END, parseFloat(m[1])); playing = false; btnPlay.textContent = '播放'; }
+})();
+
+requestAnimationFrame(tick);
+
+</script>
+</body>
+</html>
