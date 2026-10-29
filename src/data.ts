@@ -14,7 +14,7 @@ export const records = [
  {id:'water',title:'水中的记忆',en:'MEMORY IN WATER',description:'冷蓝的水面收藏着建筑和器物的倒影。碎片散开，再回到共同的中心。'}
 ];
 /* Route map, laid out in map units (1u = 1% of the screen height). Codes follow the activity map's OPERATION labels. */
-export type RouteNode = { id:string; code:string; kind:'operation'|'story'|'tutorial'|'special'; x:number; y:number; record?:number; operator?:number; motif?:string; title:string; en:string; description:string; preview?:string; label?:string; link?:string; tags?:string[]; meta?:string };
+export type RouteNode = { id:string; code:string; kind:'operation'|'story'|'tutorial'|'special'; x:number; y:number; record?:number; operator?:number; motif?:string; title:string; en:string; description:string; preview?:string; label?:string; link?:string; repo?:string; tags?:string[]; meta?:string };
 const story=(i:number,x:number,y:number,en:string):RouteNode=>({id:`st-${i+1}`,code:`MT-ST-${i+1}`,kind:'story',x,y,operator:i,title:operators[i].name,en,description:operators[i].note});
 const op=(i:number,r:number,x:number,preview:string):RouteNode=>({id:`mt-${i}`,code:`MT-${i}`,kind:'operation',x,y:60,record:r,motif:records[r].id,title:records[r].title,en:records[r].en,description:records[r].description,preview:`game/stage-${preview}.webp`});
 export const routeNodes:RouteNode[] = [

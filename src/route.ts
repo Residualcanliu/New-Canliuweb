@@ -26,6 +26,32 @@ const FORE:[string,number,number,number,string?][]=[
 ];
 const ZONES:[number,string,string][]=[[0,'city','LATERANO'],[232,'people','THE PEOPLE'],[386,'light','INTO THE LIGHT'],[478,'ex','EXTRA · SHRINE']];
 
+// Year bands in the background: the axis is cut into chapters and each year stands behind as a
+// washed-out plate mark. Chapters can be pinned by hand (`years`), otherwise they are read off the
+// year in each main node's meta — branches inherit whatever chapter they happen to sit in.
+export type YearMark={label:string;at:number;now?:boolean};
+function deriveYears(o:RouteOptions):YearMark[]{
+ const yr=(n:RouteNode)=>{const m=/(?:19|20)\d{2}/.exec(n.meta??'');return m?+m[0]:null;};
+ const spine=o.nodes.filter(n=>n.kind!=='story'&&n.kind!=='tutorial'&&n.y>=50).sort((a,b)=>a.x-b.x);
+ const now=new Date().getFullYear();
+ const marks:YearMark[]=[];
+ for(const n of spine){
+  const y=yr(n);if(y===null)continue;
+  const last=marks[marks.length-1];
+  if(!last||+last.label!==y)marks.push({label:String(y),at:Math.max(0,n.x-16),now:y>=now});
+ }
+ return marks;
+}
+function yearBands(o:RouteOptions){
+ const marks=o.years??deriveYears(o);
+ if(!marks.length)return '';
+ const cuts=marks.map(m=>m.at).concat(o.width);
+ return marks.map((m,i)=>{
+  const w=Math.max(24,cuts[i+1]-cuts[i]);
+  return `<div class="route-year" style="left:calc(var(--u)*${cuts[i].toFixed(1)});width:calc(var(--u)*${w.toFixed(1)})">${cuts[i]>4?`<em class="ry-edge"></em>`:''}<span class="ry-num">${m.label}${m.now?'<i>今</i>':''}</span></div>`;
+ }).join('');
+}
+
 // Route lines drawn by hand: the axis is laid in strokes with small gaps over a pencil guide, and each
 // branch bows slightly, runs past its nodes and has a faint offset second pass.
 function lines(o:RouteOptions){
@@ -43,7 +69,7 @@ function nodeMarkup(n:RouteNode,i:number){
  const lock=`<svg class="rn-lock" viewBox="-40 -40 80 80" aria-hidden="true"><path d="${ring(0,0,30,r,1.2)}"/><path class="rn-lock-t" d="${rule(-40,0,-33,0,r,0,0)}${rule(33,0,40,0,r,0,0)}${rule(0,-40,0,-33,r,0,0)}${rule(0,33,0,40,r,0,0)}"/></svg>`;
  const op=n.operator!==undefined?operators[n.operator]:null;
  const badge=op?`<span class="rn-badge role" style="--c:${op.color}"><svg viewBox="-110 -110 220 220">${roleGlyph(op.role)}</svg></span>`:n.kind==='tutorial'?'<span class="rn-badge book"><svg viewBox="0 0 30 30"><path d="M4 7q6-3 11 1q5-4 11-1v16q-6-3-11 1q-5-4-11-1zM15 8v16"/></svg></span>':n.kind==='special'?'<span class="rn-badge halo"><svg viewBox="0 0 30 30"><ellipse cx="15" cy="8" rx="8" ry="2.4"/><path d="M15 12v14M9 18h12"/></svg></span>':'';
- return `<button class="route-node kind-${n.kind}" data-route="${i}" ${at(n.x,n.y,`--i:${i}`)} aria-label="${n.code} ${n.title}" data-cursor="${n.code}">${lock}${badge}${hex}<span class="rn-tip"><b>${n.title}</b><small>${n.en}</small></span><span class="rn-label"><small>${n.label??kindLabel[n.kind]}</small><b>${n.code}</b></span><em class="rn-done">COMPLETED</em></button>`;
+ return `<button class="route-node kind-${n.kind}" data-route="${i}" ${at(n.x,n.y,`--i:${i}`)} aria-label="${n.code} ${n.title}" data-cursor="${n.code}">${lock}${badge}${hex}<span class="rn-tip"><b>${n.title}</b><small>${n.en}</small></span><span class="rn-label"><small>${n.label??kindLabel[n.kind]}</small><b>${n.code}</b></span><em class="rn-done">${n.kind==='special'?'CONTINUE':'COMPLETED'}</em></button>`;
 }
 const piece=([a,x,y,h,cls]:[string,number,number,number,string?],i:number)=>`<img class="rd ${cls??''}" src="${g(a)}" alt="" draggable="false" ${at(x,y,`--h:${h};--i:${i}`)}>`;
 
@@ -51,7 +77,7 @@ type Item={el:HTMLElement;x:number;w:number;depth:number;near:number;boost:numbe
 // Everything that makes this map the festival route; another site can pass its own nodes and panel.
 // A hidden figure: pin every one of these nodes and the figure draws itself.
 export type Figure={ids:string[];label:string;open?:boolean};
-export type RouteOptions={figures?:Figure[];nodes:RouteNode[];width:number;links:[string,string][];extraLines?:string;head:{eyebrow:string;title:string;sub:string};counter:string;portals:string;panel:(n:RouteNode,i:number,map:RouteMap)=>string};
+export type RouteOptions={figures?:Figure[];nodes:RouteNode[];width:number;links:[string,string][];extraLines?:string;years?:YearMark[];head:{eyebrow:string;title:string;sub:string};counter:string;portals:string;panel:(n:RouteNode,i:number,map:RouteMap)=>string};
 function festivalPanel(n:RouteNode,i:number,map:RouteMap){
  const op=n.operator!==undefined?operators[n.operator]:null;const rec=n.record!==undefined?records[n.record]:null;
   const saveId=rec?.id??op?.id;const saved=saveId?map.saved().has(saveId):false;
@@ -76,7 +102,7 @@ export class RouteMap{
    <div class="route-layer back" data-depth=".5"><img class="route-pano" src="${g('map-pano')}" alt="" draggable="false"><img class="route-ex" src="${g('map-ex')}" alt="" draggable="false"><img class="route-ex s" src="${g('map-s')}" alt="" draggable="false">${['A','K','T','N'].map((c,i)=>`<span class="route-letter" ${at(30+i*130,i%2?52:-8)}>${c}</span>`).join('')}</div>
    <canvas class="route-seq" aria-hidden="true"></canvas>
    <div class="route-layer mid" data-depth=".78">${MID.map(piece).join('')}<div class="route-circles rd" ${at(382,-4)}>${'<i></i>'.repeat(7)}</div><span class="route-word rd" ${at(232,90)}>THE COVENANT</span><span class="route-word rd" ${at(18,92)}>SANCTUM · 1099</span><span class="route-word big rd" ${at(332,95)}>GLANCE</span></div>
-   <div class="route-layer main" data-depth="1">${lines(o)}<div class="route-pins"></div><span class="route-xaxis">X AXIS</span>${o.nodes.map(nodeMarkup).join('')}</div>
+   <div class="route-layer main" data-depth="1">${yearBands(o)}${lines(o)}<div class="route-pins"></div><span class="route-xaxis">X AXIS</span>${o.nodes.map(nodeMarkup).join('')}</div>
    <div class="route-layer fore" data-depth="1.42">${FORE.map(piece).join('')}</div>
    <div class="route-streaks">${'<i></i>'.repeat(9)}</div><div class="route-glitch"></div></div>
   <div class="route-head"><span class="eyebrow" data-scramble>${o.head.eyebrow}</span><h2>${o.head.title}</h2><p>${o.head.sub}</p></div>

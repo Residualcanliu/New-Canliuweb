@@ -35,25 +35,25 @@ export const profile = {
  }
 };
 
-const work = (id: string, code: string, kind: RouteNode['kind'], x: number, y: number, title: string, en: string, meta: string, description: string, preview: string, tags: string[], label?: string): RouteNode =>
- ({ id, code, kind, x, y, title, en, meta, description, preview: `game/${preview}.webp`, tags, link: '#', label });
+const work = (id: string, code: string, kind: RouteNode['kind'], x: number, y: number, title: string, en: string, meta: string, description: string, preview: string, tags: string[], label?: string, link?: string, repo?: string): RouteNode =>
+ ({ id, code, kind, x, y, title, en, meta, description, preview: `game/${preview}.webp`, tags, link: link ?? '#', repo, label });
 
 // 作品集：主项目在轴上，实验在上方分支，写作在下方。
 export const works: RouteNode[] = [
  work('wk-01', 'WK-01', 'operation', 66, 60, '开印 · 个人网站', 'THE PRINT RUN', '2026 · 设计 / 开发', '以印刷套准为开场语言的个人站：纸张、钴蓝印版、网点与版心线，全部矢量实时绘制。', 'stage-01', ['Three.js', 'Canvas', '动效'], 'PROJECT'),
  work('wk-02', 'WK-02', 'operation', 116, 60, '城市噪声地图', 'CITY OF NOISE', '2025 · 数据可视化', '用一年的环境噪声数据生成可缩放的城市剖面，按小时回放城市的呼吸。', 'stage-03', ['D3', '数据', 'WebGL'], 'PROJECT'),
- work('nt-01', 'NOTE-01', 'tutorial', 141, 82, '写给设计师的 Canvas 笔记', 'NOTES ON CANVAS', '2025 · 文章', '一组关于离屏画布、逐帧动画与性能的写作，附可交互示例。', 'stage-tr01', ['写作', '教程'], 'NOTE'),
+ work('nt-01', 'NOTE-01', 'tutorial', 389, 82, '写给设计师的 Canvas 笔记', 'NOTES ON CANVAS', '2025 · 文章', '一组关于离屏画布、逐帧动画与性能的写作，附可交互示例。', 'stage-tr01', ['写作', '教程'], 'NOTE'),
  work('wk-03', 'WK-03', 'operation', 166, 60, '展览导览系统', 'EXHIBITION GUIDE', '2024 · 交互设计', '为一次影像展设计的移动端导览：展品识别、路线推荐与离线缓存。', 'stage-05', ['移动端', '展览'], 'PROJECT'),
  work('wk-04', 'WK-04', 'operation', 216, 60, '品牌动态规范', 'MOTION GUIDELINES', '2024 · 动效设计', '为一个消费品牌建立动效语言：节奏、缓动曲线、转场与组件动效库。', 'stage-06', ['品牌', '规范'], 'PROJECT'),
  work('lab-01', 'LAB-01', 'story', 248, 38, '手势画布', 'GESTURE CANVAS', '实验 · 2025', '用摄像头追踪手势，在画布上留下会消散的线条。', 'stage-ex02', ['实验', '手势'], 'LAB'),
- work('lab-02', 'LAB-02', 'story', 290, 24, '字母的形变', 'LETTER MORPH', '实验 · 2024', '衬线字母之间的插值与翻转，一个字体动效小工具。', 'stage-ex04', ['字体', '实验'], 'LAB'),
- work('lab-03', 'LAB-03', 'story', 332, 38, '声音的形状', 'SHAPE OF SOUND', '实验 · 2023', '把音频频谱映射成可拖动的三维地形。', 'stage-ex06', ['音频', 'Three.js'], 'LAB'),
- work('wk-05', 'WK-05', 'operation', 364, 60, '在线课程平台', 'LEARNING PLATFORM', '2023 · 产品设计', '从信息架构到界面组件的完整改版，课程完课率提升 18%（示例数据）。', 'stage-08', ['产品', '设计系统'], 'PROJECT'),
- work('wk-06', 'WK-06', 'operation', 414, 60, '独立游戏 UI', 'INDIE GAME UI', '2022 · 界面设计', '为一款叙事解谜游戏设计主菜单、存档与道具界面。', 'stage-10', ['游戏', 'UI'], 'PROJECT'),
+ work('match-03', 'MATCH-03', 'story', 332, 38, '企业融资风险中控', 'FINANCIAL RISK CONTROL', '2026 · 竞赛 / 智能体', '基于智谱 AI 的企业融资风险中控服务软件：集成自然语言对话、合规性检测、情感评估与行为预测，Python + PyQt 桌面端，分析结果可导出 PDF 报告。26 年机设大赛省三等奖。', 'stage-match', ['智能体', '大模型', 'PyQt', '合规风控'], 'MATCH', 'https://github.com/Residualcanliu/Personal-demo2'),
+ work('comp-01', 'COMP-01', 'operation', 340, 78, '倒置 LLM 图谱查询', 'INVERTED LLM · GRAPHRAG', '2026 · 企业项目', '面向工业作业知识场景化建模与即时调度的「倒置 LLM」架构：大模型只把自然语言翻译成 Cypher，取数与计算交给 Neo4j，从推理者降级为翻译器，显著提升查询准确率与灵活性。', 'stage-graphrag', ['企业项目', 'RAG', 'Cypher', 'Neo4j'], 'COMPANY', 'https://github.com/Residualcanliu/inverted-llm-graphrag'),
+ work('wk-05', 'WK-05', 'operation', 364, 60, 'ComfyPortal', 'COMFY AI PLATFORM', '2026 · 全栈 / AI', '基于 ComfyUI + Next.js + FastAPI + PostgreSQL + Redis 构建的自用 AI 图像生成平台：云端控制面与本地计算面分离，用 Tailscale 组网把本地 GPU 与云端 VPS 连成一张私有网络。', 'stage-comfy', ['ComfyUI', 'Next.js', 'FastAPI', 'Tailscale'], 'PROJECT', 'https://comfyportal.cc.cd', 'https://github.com/Residualcanliu/comfy-portal'),
+ work('wk-06', 'WK-06', 'operation', 414, 60, '新个人网站', 'THE PRINT RUN', '2026 · 设计 / 开发', '参考明日方舟风格的印刷语言：以套准开场，纸张、钴蓝印版、网点与版心线全部矢量实时绘制。', 'stage-myweb', ['Three.js', 'Canvas', '动效'], 'PROJECT', 'personal.html'),
  work('next', 'NEXT', 'special', 470, 60, '下一个项目', 'YOUR PROJECT HERE', '期待合作', '这里留给下一段合作。点「功能」，在最后一页找到联系方式。', 'stage-s01', ['合作'], 'NEXT')
 ];
 export const WORKS_WIDTH = 540;
-export const workLinks: [string, string][] = [['wk-02', 'nt-01'], ['nt-01', 'wk-03'], ['wk-04', 'lab-01'], ['lab-01', 'lab-02'], ['lab-02', 'lab-03'], ['lab-03', 'wk-05']];
+export const workLinks: [string, string][] = [['wk-04', 'lab-01'], ['lab-01', 'match-03'], ['match-03', 'wk-05'], ['wk-05', 'nt-01'], ['nt-01', 'wk-06']];
 
 // 留言墙：每一只羽兽带一条留言；name 是留言内容，en 是署名与时间。
 export const skills = [

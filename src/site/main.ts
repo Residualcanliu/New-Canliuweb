@@ -45,7 +45,7 @@ app.innerHTML=resolveMarkupAssets(`
  <section id="home" class="screen home-screen" aria-label="首页">
   <div class="home-geometry">${ring}<span>${P.name.cn}</span></div>
   <div class="home-stack back" aria-hidden="true"><img class="hs rays" src="/assets/game/rays-white.webp" alt=""></div>
-  <div class="home-plate plate-host">${homePlate(undefined,String(new Date().getDate()),`GCH DESIGN · MADE IN 2026 · RESIDUAL · SPECIAL THANKS TO 繁星#3377 · `)}<i class="plate-scanline"></i></div>
+  <div class="home-plate plate-host">${homePlate(undefined,String(new Date().getDate()),`GCH DESIGN · MADE IN 2026 · CANLIU · RESIDUAL V MAP1E · DESIGN / FRONT-END · `)}<i class="plate-scanline"></i></div>
   <div class="home-stack front" aria-hidden="true"><img class="hs blade" src="/assets/game/blade-a.webp" alt=""><img class="hs star s1" src="/assets/game/star-blue.webp" alt=""><img class="hs star s2" src="/assets/game/star-blue.webp" alt=""><img class="hs star s3" src="/assets/game/star-blue.webp" alt=""></div>
   <span class="home-stamp" aria-hidden="true">${P.name.lines[0][0]}</span>
   <div class="home-copy"><span class="eyebrow" data-scramble>${P.roleEn}</span><div class="home-wordmark" aria-label="Welcome 欢迎来到我的频道"><span>Welcome</span><span class="cn">欢迎来到</span><span class="cn">我的频道</span></div><div class="title-cn"><span class="hairline"></span><h1>${P.name.cn}</h1><span class="tiny-symbol">✦</span></div><p class="home-quote">${P.tagline}</p><div class="home-actions"><button class="primary" data-action="works" data-scan><span>看作品集</span><small>${works.length} PROJECTS · ${P.since}—</small>${icon('arrow')}</button><button class="text-button" data-action="contact" data-scan>联系 <span>↗</span></button></div></div>
@@ -102,7 +102,7 @@ function tickClock(){
 }
 if(clockH){tickClock();setInterval(tickClock,200);}
 
-/* ── 表盘外圈的旋转文字：按长度重复铺在圆周上，末尾留一段缺口，环不闭合 ── */
+/* ── 表盘外圈的旋转文字：按长度重复铺在 70% 圆周上，末尾留 108° 开口，环不闭合 ── */
 function fitOrbit(){
  const tp=document.querySelector<SVGTextPathElement>('.hp-orbit textPath');
  if(!tp)return;
@@ -110,7 +110,7 @@ function fitOrbit(){
  if(!text)return;
  const legend=tp.dataset.legend||(tp.dataset.legend=tp.textContent||'');
  if(!legend)return;
- const span=2*Math.PI*400*.70; // 修改开口
+ const span=2*Math.PI*400*.7; // 70% 排字，30% 留空
  text.style.letterSpacing='0px';tp.textContent=legend;
  const base=tp.getComputedTextLength?tp.getComputedTextLength():0;
  if(!(base>0))return;
@@ -133,10 +133,10 @@ function workPanel(n:RouteNode,i:number){
  return `<div class="rp-head"><span class="rp-kind">${n.label??'PROJECT'}</span><span class="rp-code" data-scramble>${n.code}</span><span class="rp-time">${n.meta??''}</span></div>
   <figure class="rp-image stage"><img src="${assetUrl(n.preview??'game/stage-01.webp')}" alt="${n.title} 的预览（占位图）" draggable="false"><b></b><b></b><b></b><b></b><figcaption>PREVIEW · ${String(i+1).padStart(2,'0')} / ${String(works.length).padStart(2,'0')}</figcaption></figure>
   <h3>${n.title}</h3><p class="rp-en">${n.en}</p><p class="rp-desc">${n.description}</p><div class="rp-tags">${(n.tags??[]).map(t=>`<span>${t}</span>`).join('')}</div>
-  <div class="rp-actions">${n.kind==='special'?'<button class="line-button solid" data-action="contact">联系我 →</button>':`<a class="line-button solid" href="${n.link??'#'}" target="_blank" rel="noreferrer">查看项目 ↗</a>`}</div>
+  <div class="rp-actions">${n.kind==='special'?'<button class="line-button solid" data-action="contact">联系我 →</button>':`<a class="line-button solid" href="${n.link??'#'}" target="_blank" rel="noreferrer">查看项目 ↗</a>${n.repo?`<a class="line-button" href="${n.repo}" target="_blank" rel="noreferrer">开源仓库 ↗</a>`:''}`}</div>
   <div class="rp-step"><button data-action="work-prev" aria-label="上一个作品">←</button><span>${n.code}</span><button data-action="work-next" aria-label="下一个作品">→</button></div>`;
 }
-const route=new RouteMap($('#records'),visited,()=>new Set(),id=>{saveStored('site-visited',[...visited]);if(page==='works')history.replaceState(null,'',`#/works/${id}`);},{nodes:works,width:WORKS_WIDTH,links:workLinks,head:{eyebrow:'SELECTED WORKS',title:'作品集',sub:`WORKS / ${P.since}—${new Date().getFullYear()}`},counter:'已看作品',panel:workPanel,
+const route=new RouteMap($('#records'),visited,()=>new Set(),id=>{saveStored('site-visited',[...visited]);if(page==='works')history.replaceState(null,'',`#/works/${id}`);},{nodes:works,width:WORKS_WIDTH,links:workLinks,years:[{label:'2024',at:66},{label:'2025',at:216},{label:'2026',at:364,now:true}],head:{eyebrow:'SELECTED WORKS',title:'作品集',sub:`WORKS / ${P.since}—${new Date().getFullYear()}`},counter:'已看作品',panel:workPanel,
  portals:''});
 route.seq.reduced=!motion;
 
