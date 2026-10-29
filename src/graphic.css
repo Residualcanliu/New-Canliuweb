@@ -23,8 +23,8 @@
 .mode-atlas .bottom-bar,.mode-atlas .topbar{--line:#3a5bc240}
 
 /* ——— Word collection ——— */
-.word-progress{display:flex;gap:5px;margin-left:auto;margin-right:26px;font:13px var(--serif);letter-spacing:0;align-items:center}
-.word-progress span{width:13px;text-align:center;opacity:.22;border-bottom:1px solid currentColor;padding-bottom:2px;transition:opacity .3s,color .3s}
+.word-progress{display:flex;gap:6px;margin-left:auto;margin-right:26px;font:15px var(--serif);letter-spacing:0;align-items:center}
+.word-progress span{width:15px;text-align:center;opacity:.22;border-bottom:1px solid currentColor;padding-bottom:2px;transition:opacity .3s,color .3s}
 .word-progress span.got{opacity:1;color:var(--cobalt)}.word-progress span.pop{animation:letter-pop .6s cubic-bezier(.2,1.6,.4,1)}
 .word-progress.complete span{color:var(--cobalt);border-color:var(--cobalt)}
 .word-progress.complete{cursor:pointer}
@@ -273,6 +273,7 @@
 .bp-cross{stroke:#3a5bc2;stroke-width:1.2;fill:none}
 .bp-fill{fill:#ced6d8;stroke:#3a5bc2;stroke-width:1.15;vector-effect:non-scaling-stroke;transition:fill .25s}
 .bp-rib{fill:none;stroke:#3a5bc2;stroke-width:.8;opacity:.75;vector-effect:non-scaling-stroke}
+.bp-vein{fill:none;stroke:#3a5bc2;stroke-width:.7;opacity:.5;vector-effect:non-scaling-stroke;stroke-linecap:round}
 .bp-hatch{stroke:#3a5bc2;stroke-width:1.6;fill:none;vector-effect:non-scaling-stroke}
 .bp-num{font:9px var(--mono);fill:#3a5bc2;text-anchor:middle;pointer-events:none;transition:font-size .2s}
 .bp-spec text{font:9px var(--mono);fill:#3a5bc2;letter-spacing:1px}
@@ -810,3 +811,9 @@ img.rd[data-near="2"]{animation:rd-in .7s ease both}
 .route-lines .guide{stroke-width:.45}.route-lines .branch-echo path{stroke-width:.6}.route-lines .baseline{stroke-width:2.4}
 .route-node .hex path:not(.hex-echo){stroke-width:3.2}.route-node .hex .hex-echo{stroke-width:1}
 .reduced-motion .cl-dove{animation:none}
+
+
+
+/* 首屏：中英文混排时，中文两行单独给字距与行高（大字号下中文会糊在一起） */
+.site .home-wordmark span.cn{font-family:var(--cn-serif);letter-spacing:.02em;line-height:1.04;font-weight:400;font-size:.72em}
+.site .home-wordmark span.cn:last-child{margin-left:16%}

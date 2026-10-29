@@ -181,7 +181,7 @@ export function homePlate(T:PlateTheme=PAGE,mark='06',legend="LATERANO · 1099 �
    <path d="${ring(C[0],C[1],268,r,1.4)}" style="stroke-width:.8;stroke-dasharray:2 6"/><path d="${ticks(C[0],C[1],300,96,r)}" style="stroke-width:.9;opacity:.7"/>
    <path d="${brokenAxis(C[0],80,C[0],900,r,5)}${brokenAxis(90,C[1],950,C[1],r,5)}" style="stroke-width:.6;opacity:.35"/></g>
    ${yRuler(40,240,760,r,T.ink)}${column(968,150,'FAITH · ORDER · FREEDOM · A JOURNEY TOWARDS THE LIGHT',T.ink)}${registration(90,170,18,r,T.ink)}${registration(930,880,18,r,T.ink)}${crops(16,16,984,984,T.ink)}`},
-  {d:.45,cls:'spin',defs:`<path id="${id}-orbit" d="M520 70a400 400 0 1 1 0 800a400 400 0 1 1 0-800"/>`,body:`<text style="font:600 17px ${MONO};letter-spacing:6px;fill:${T.ink}"><textPath href="#${id}-orbit">${legend.repeat(2)}</textPath></text>
+  {d:.45,cls:'spin',defs:`<path id="${id}-orbit" d="M520 70a400 400 0 1 1 0 800a400 400 0 1 1 0-800"/>`,body:`<text class="hp-orbit" style="font:600 17px ${MONO};letter-spacing:6px;fill:${T.ink};stroke:none"><textPath href="#${id}-orbit">${legend}</textPath></text>
    <path d="${ring(C[0],C[1],382,r,1.2)}" style="fill:none;stroke:${T.ink};stroke-width:1.6;stroke-dasharray:.5 11;stroke-linecap:round"/>
    ${[...Array(4)].map((_,k)=>{const a=r()*TAU;return `<circle cx="${f(C[0]+Math.cos(a)*382)}" cy="${f(C[1]+Math.sin(a)*382)}" r="${k%2?4:7}" style="fill:${T.paper};stroke:${T.accent};stroke-width:1.6"/>`;}).join('')}`},
   {d:.5,cls:'spin rev',body:`<path d="${brush(arcPts(C[0],C[1],322,-2.6,-.4,r,1.4),20,.45)}" style="fill:${T.accent}"/><path d="${arc(C[0],C[1],334,-2.5,.1,r,1)}" style="fill:none;stroke:${T.accent};stroke-width:1"/>`},
@@ -216,8 +216,8 @@ export function homePlate(T:PlateTheme=PAGE,mark='06',legend="LATERANO · 1099 �
     ${[...Array(60)].map((_,i)=>{const a=i/60*TAU-Math.PI/2,big=i%5===0,r0=228,r1=big?203:215;return `<path d="M${f(C[0]+Math.cos(a)*r0)} ${f(C[1]+Math.sin(a)*r0)}L${f(C[0]+Math.cos(a)*r1)} ${f(C[1]+Math.sin(a)*r1)}" style="stroke-width:${big?4.2:1.3};opacity:${big?.95:.5}"/>`;}).join('')}
    </g>
    ${[...Array(12)].map((_,k)=>{const n=k+1,a=((n%12)/12)*TAU-Math.PI/2,rN=170;return `<text class="hp-num" data-hr="${n}" x="${f(C[0]+Math.cos(a)*rN)}" y="${f(C[1]+Math.sin(a)*rN+15)}" text-anchor="middle" style="fill:${T.paper};font:400 44px ${SERIF};--nx:${f(Math.cos(a)*4)}px;--ny:${f(Math.sin(a)*4)}px">${n}</text>`;}).join('')}
-   <text x="520" y="528" text-anchor="middle" style="font:600 9px ${MONO};letter-spacing:2.8px;fill:${T.paper};opacity:.66">CANLIU · RESIDUAL V MAP1E</text>
-   <text class="hp-time" x="520" y="554" text-anchor="middle" style="font:15px ${MONO};letter-spacing:2.4px;fill:${T.paper};opacity:1">--:--:-- · --.--</text>
+   <text x="520" y="528" text-anchor="middle" style="font:600 9px ${MONO};letter-spacing:2.8px;fill:#FFFFFF;stroke:none;opacity:.78">CANLIU · RESIDUAL V MAP1E</text>
+   <text class="hp-time" x="520" y="556" text-anchor="middle" style="font:600 16px ${MONO};letter-spacing:2.6px;fill:#FFFFFF;stroke:none;opacity:1">--:--:-- · --.--</text>
    <g class="hp-hands">
     <g class="hp-hand hp-hand-h"><path d="M512.6 475 L517.4 344 L520 328 L522.6 344 L527.4 475 Z" style="fill:${T.paper}"/></g>
     <g class="hp-hand hp-hand-m"><path d="M514.2 475 L518.2 288 L520 268 L521.8 288 L525.8 475 Z" style="fill:${T.paper}"/></g>

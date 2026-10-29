@@ -6,7 +6,7 @@ type Pt=[number,number];
 type Hand={src:string;ratio:number;tip:Pt;palm:Pt;joints:[number,number,number][]};
 const LEFT:Hand={src:'game/hand-white.webp',ratio:120/140,tip:[.955,.235],palm:[.66,.37],joints:[[.955,.235,7],[.93,.31,5],[.8,.24,9],[.78,.04,6],[.7,.3,12],[.55,.47,16],[.32,.68,9],[.12,.88,6]]};
 const RIGHT:Hand={src:'game/arm-hand.webp',ratio:128/220,tip:[.335,.27],palm:[.5,.38],joints:[[.335,.27,7],[.41,.21,5],[.47,.19,6],[.56,.21,5],[.5,.42,13],[.6,.47,18],[.76,.66,9],[.93,.95,6]]};
-const WORDS='COVENANT';
+const WORDS='RESIDUAL';
 
 export class Covenant{
  canvas=document.createElement('canvas');ctx:CanvasRenderingContext2D;left:HTMLElement;right:HTMLElement;letters:HTMLElement[]=[];

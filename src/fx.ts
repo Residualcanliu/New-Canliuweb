@@ -37,7 +37,7 @@ export class Reticle{
 }
 
 // Letters resolve out of noise, the way the PV's captions and map labels flicker into place.
-const LATIN='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#/+<>*';const WIDE='▚▞▙▟■□▪◆◇▤▥';
+const LATIN='CANLIUGCH';const WIDE='▚▞▙▟■□▪◆◇▤▥';
 const running=new WeakMap<HTMLElement,number>();
 export function scramble(el:HTMLElement,ms=520,text?:string){
  const final=text??el.dataset.text??el.textContent??'';el.dataset.text=final;cancelAnimationFrame(running.get(el)??0);
@@ -60,7 +60,7 @@ function markFrame(r:()=>number,accent:string){
  for(let i=1;i<pts.length;i++)if(r()<.7)items.push(`<line x1="${pts[i-1][0].toFixed(1)}" y1="${pts[i-1][1].toFixed(1)}" x2="${pts[i][0].toFixed(1)}" y2="${pts[i][1].toFixed(1)}" stroke="${ink}" stroke-opacity=".4" stroke-width=".12"/>`);
  const [dx,dy]=pts[0];items.push(`<circle cx="${dx+3}" cy="${dy-3}" r="1.3" fill="${ink}"/><text x="${dx+3}" y="${dy-2.55}" font-size="1.4" fill="#f3f5f4" text-anchor="middle" font-family="Consolas">${1+Math.floor(r()*9)}</text>`);
  const [cx,cy]=pts[pts.length-1];items.push(`<path d="M${cx-4} ${cy}h8M${cx} ${cy-4}v8" stroke="${accent}" stroke-width=".2"/>`);
- const ch='NACTIEVSOKR'[Math.floor(r()*11)];const lx=6+r()*80,ly=20+r()*70;items.push(`<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" font-size="${(8+r()*10).toFixed(1)}" font-family="Bodoni MT,Georgia,serif" fill="${ink}" fill-opacity=".75" transform="${r()<.5?`scale(-1 1) translate(${(-2*lx).toFixed(1)} 0)`:''}">${ch}</text>`);
+ const ch='CANLIUGCH'[Math.floor(r()*9)];const lx=6+r()*80,ly=20+r()*70;items.push(`<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" font-size="${(8+r()*10).toFixed(1)}" font-family="Bodoni MT,Georgia,serif" fill="${ink}" fill-opacity=".75" transform="${r()<.5?`scale(-1 1) translate(${(-2*lx).toFixed(1)} 0)`:''}">${ch}</text>`);
  return `<svg class="fx-frame" viewBox="0 0 100 100" preserveAspectRatio="none">${items.join('')}</svg>`;
 }
 export function burst(layer:HTMLElement,kind:Burst,accent='#3a5bc2'){
@@ -111,7 +111,7 @@ export class NodeField{
 
 // Click marks: a ring, a crosshair, the coordinate and a stamped letter that fade like PV annotations.
 export function ripple(layer:HTMLElement,x:number,y:number){
- const ch='NACTIEVSOKRL'[Math.floor(Math.random()*12)];const el=document.createElement('div');el.className='ripple';el.style.left=`${x}px`;el.style.top=`${y}px`;
+ const ch='CANLIUGCH'[Math.floor(Math.random()*9)];const el=document.createElement('div');el.className='ripple';el.style.left=`${x}px`;el.style.top=`${y}px`;
  el.innerHTML=`<i></i><i></i><b>${ch}</b><span>${String(Math.round(x)).padStart(4,'0')} · ${String(Math.round(y)).padStart(4,'0')}</span>`;layer.append(el);setTimeout(()=>el.remove(),1500);
 }
 
@@ -119,7 +119,7 @@ export function ripple(layer:HTMLElement,x:number,y:number){
 export function morphGlyph(container:HTMLElement){
  const list=[...container.querySelectorAll<HTMLElement>('.glyph:not(.key)')];if(!list.length)return;const g=list[Math.floor(Math.random()*list.length)];
  g.classList.remove('morphing');void g.offsetWidth;g.classList.add('morphing');
- setTimeout(()=>{g.textContent='NACTIEVSOKRΛИ'[Math.floor(Math.random()*13)];g.classList.toggle('flip-x');},260);
+ setTimeout(()=>{g.textContent='CANLIUGCH'[Math.floor(Math.random()*9)];g.classList.toggle('flip-x');},260);
  setTimeout(()=>g.classList.remove('morphing'),700);
 }
 

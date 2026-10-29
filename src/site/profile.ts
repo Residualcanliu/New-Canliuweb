@@ -10,7 +10,7 @@ export const profile = {
  name: { lines: ['G', 'CH'], cn: 'GCH', latin: 'GCH' },
  role: '设计与前端', roleEn: 'DESIGN / FRONT-END',
  location: '上海 · SHANGHAI', since: 2019,
- tagline: '在印刷、网格与代码之间，<br>做可以被翻动的界面。',
+ tagline: '亦或是你熟悉的另一个名字<br>Residual v Map1e（canliu）',
  taglineEn: 'BETWEEN PRINT, GRID AND CODE',
  quote: '好的界面，像一张刚刚套准的印张。',
  bio: '做设计与前端之间那条缝里的活：把抽象的结构落成能跑、能看、能讲清楚的东西。喜欢从印刷品、图纸和老海报里找秩序，再把它改写成可以被拖动、被点亮、被拆开的网页。日常使用 TypeScript、Three.js 与 Figma。',

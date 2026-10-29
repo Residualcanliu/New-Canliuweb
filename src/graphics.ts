@@ -7,6 +7,9 @@ export function rng(seed:number){let s=seed>>>0||1;return()=>{s^=s<<13;s^=s>>>17
 
 // A dove in flight, beak to the right, wing raised with jagged primaries (box 0..100 × 0..60).
 export const BIRD='M98 30L90 27Q84 25 80 27L70 25L64 14L66 4L60 11L58 0L54 10L50 2L48 13L43 7L42 18L38 22L26 26L14 24L4 22L10 29L2 33L16 33L30 35Q46 40 58 38L64 46L62 56L70 46L76 40L84 35Q92 34 98 30Z';
+// 留言页：把羽兽换成之前的蝴蝶（由 bfly-solid.png 的剪影描出，单条闭合路径，中心在 (50,30)）
+export const BFLY='M50.8 5.0L49.5 5.6L48.3 7.1L46.0 14.2L41.4 10.1L37.9 7.9L35.1 6.7L33.6 6.4L31.7 6.5L30.5 7.3L29.5 9.2L29.3 10.7L29.9 13.3L29.8 15.1L30.8 18.5L29.8 20.9L29.7 22.8L29.0 24.6L29.6 26.8L29.3 28.5L29.5 29.5L31.8 31.8L36.8 33.5L31.9 34.7L28.1 37.2L27.3 38.6L27.9 40.7L27.0 43.3L28.5 45.7L28.8 48.6L31.2 50.1L32.4 52.5L33.5 53.3L35.5 53.4L37.9 54.9L39.4 54.9L42.1 53.6L45.5 50.8L51.5 44.8L50.0 47.5L48.1 52.1L48.5 52.9L49.3 52.5L52.4 48.7L55.1 43.7L56.2 42.9L57.8 40.2L59.7 38.4L60.2 36.1L62.1 34.2L62.0 33.3L61.3 32.3L62.2 30.7L66.4 26.6L72.9 22.3L72.6 21.6L71.9 21.9L67.5 25.4L63.5 28.9L61.0 32.0L61.6 29.9L64.2 24.4L67.1 19.9L67.2 19.1L66.5 18.9L63.3 25.4L60.6 31.7L59.3 32.4L58.8 33.6L57.4 34.3L58.4 28.5L58.4 23.9L57.3 15.9L56.1 11.7L54.5 8.3L52.4 5.7Z';
+
 const BIRD_RIBS='M52 24L58 4M50 25L52 6M47 25L45 10M60 37L64 52';
 const BIRD_HATCH='M5 25L17 28M3 29L17 30M6 32L17 31.5';
 
@@ -30,7 +33,7 @@ export function flock(seed=6,count=46):BirdSpec[]{
 }
 export function birdMarkup(b:BirdSpec,interactive:boolean){
  const t=`translate(${b.x.toFixed(1)} ${b.y.toFixed(1)}) rotate(${b.r.toFixed(1)}) scale(${(b.flip?-b.s:b.s).toFixed(2)} ${b.s.toFixed(2)}) translate(-50 -30)`;
- return `<g class="bp-bird"${interactive?` data-bird="${b.n}" tabindex="-1"`:''} style="--d:${(b.x/1600).toFixed(3)}"><g class="bp-bird-body" transform="${t}"><path class="bp-fill" d="${BIRD}"/><path class="bp-rib" d="${BIRD_RIBS}"/><path class="bp-hatch" d="${BIRD_HATCH}"/></g><text class="bp-num" x="${b.x.toFixed(1)}" y="${(b.y+4).toFixed(1)}">${b.n}</text></g>`;
+ return `<g class="bp-bird"${interactive?` data-bird="${b.n}" tabindex="-1"`:''} style="--d:${(b.x/1600).toFixed(3)}"><g class="bp-bird-body" transform="${t}"><path class="bp-fill" d="${BFLY}"/></g><text class="bp-num" x="${b.x.toFixed(1)}" y="${(b.y+4).toFixed(1)}">${b.n}</text></g>`;
 }
 
 // PV 00:12–00:16 — "羽兽何以飞翔": numbered flock over a dot grid with orbit ellipses and fan lines.

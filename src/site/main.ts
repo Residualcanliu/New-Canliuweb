@@ -28,10 +28,9 @@ const GLYPHS:Record<Page,{ch:string;x:number;y:number;size:number;depth:number;k
 };
 /* ── 集字彩蛋：canliu，六个字母散在五页，集齐开隐藏页 ── */
 const LETTERS=[...secret.word];
-const LETTER_KEY='site-letters';
-const got=new Set<number>(((readStored<number[]>(LETTER_KEY,[])||[]) as number[]).filter(i=>Number.isInteger(i)&&i>=0&&i<LETTERS.length));
+const got=new Set<number>();   // 不落存储：每次刷新都重新找
 const motion=readStored<boolean>('site-motion',!matchMedia('(prefers-reduced-motion: reduce)').matches)!==false;
-let page:Page='home',blueprint=readStored<boolean>('site-blueprint',false)===true,arcTag=-1,scanTimer=0,enterTimer=0,active:HTMLElement|null=null,pendingParallax:{x:number;y:number}|null=null,released=new Set<number>();
+let page:Page='home',arcTag=-1,scanTimer=0,enterTimer=0,active:HTMLElement|null=null,pendingParallax:{x:number;y:number}|null=null,released=new Set<number>();
 const accentStyle=`--accent:${P.accent}`;
 const app=document.querySelector<HTMLDivElement>('#app')!;
 const nameLines=(seed:number)=>{const r=rng(seed);let j=0;return P.name.lines.map((line,i)=>`<span class="name-line line-${i}">${[...line].map(c=>`<span class="ch" style="--dx:${((r()-.5)*260).toFixed(0)}px;--dy:${((r()-.5)*140).toFixed(0)}px;--r:${((r()-.5)*40).toFixed(0)}deg;--sc:${(.6+r()*1.4).toFixed(2)};--j:${j++}">${c}</span>`).join('')}</span>`).join('');};
@@ -39,17 +38,17 @@ const skillBirds=flock(6,skills.length*3);
 
 app.innerHTML=resolveMarkupAssets(`
 <main id="stage" class="mode-home site" style="${accentStyle}" aria-label="${P.name.cn} 的个人网站">
- <div class="site-backdrop"><img src="/assets/game/map-pano-sky.webp" alt=""></div><div class="world-veil"></div><div id="haze" aria-hidden="true"><i></i><i></i><i></i></div><canvas id="node-field" aria-hidden="true"></canvas><div id="glyphs"></div><div class="paper-grain"></div><div id="blueprint-wash" aria-hidden="true"></div>
+ <div class="site-backdrop"><img src="/assets/game/map-pano-sky.webp" alt=""></div><div class="world-veil"></div><div id="haze" aria-hidden="true"><i></i><i></i><i></i></div><canvas id="node-field" aria-hidden="true"></canvas><div id="glyphs"></div><div class="paper-grain"></div>
  <div class="crosshair crosshair-one">+</div><div class="crosshair crosshair-two">+</div><div class="edge-ruler" aria-hidden="true">${'<i></i>'.repeat(9)}</div>
- <header class="topbar"><button class="brand" data-action="home" aria-label="返回首页"><span>${P.name.latin.toUpperCase()}<small>${P.roleEn}</small></span></button><div class="top-context"><span class="live-dot"></span><span id="mode-caption">${P.name.cn} · 个人网站</span></div><div class="word-progress" id="word-progress" aria-label="已收集的字母" title="在各页找蓝色字母，集齐 canliu">${[...secret.word].map((c,i)=>`<span data-letter="${i}">${c}</span>`).join('')}</div><div class="top-tools"><button data-action="contact" aria-label="联系我" title="联系">${icon('info')}</button><button id="blueprint-toggle" data-action="blueprint" aria-label="图纸模式" title="图纸模式 B">${icon('grid')}</button><button data-action="fullscreen" aria-label="全屏" title="全屏 F">${icon('full')}</button></div></header>
+ <header class="topbar"><button class="brand" data-action="home" aria-label="返回首页"><span>MADE BY GCH<small>${P.roleEn}</small></span></button><div class="top-context"><span class="live-dot"></span><span id="mode-caption">${P.name.cn} · 个人网站</span></div><div class="word-progress" id="word-progress" aria-label="已收集的字母" title="在各页找蓝色字母，集齐 canliu">${[...secret.word].map((c,i)=>`<span data-letter="${i}">${c}</span>`).join('')}</div><div class="top-tools"><button data-action="contact" aria-label="联系我" title="联系">${icon('info')}</button><button data-action="fullscreen" aria-label="全屏" title="全屏 F">${icon('full')}</button></div></header>
 
  <section id="home" class="screen home-screen" aria-label="首页">
   <div class="home-geometry">${ring}<span>${P.name.cn}</span></div>
   <div class="home-stack back" aria-hidden="true"><img class="hs rays" src="/assets/game/rays-white.webp" alt=""></div>
-  <div class="home-plate plate-host">${homePlate(undefined,'26',`${P.name.latin.toUpperCase()} · ${P.roleEn} · ${P.location} · SINCE ${P.since} · `)}<i class="plate-scanline"></i></div>
+  <div class="home-plate plate-host">${homePlate(undefined,String(new Date().getDate()),`GCH DESIGN · MADE IN 2026 · RESIDUAL · SPECIAL THANKS TO 繁星#3377 · `)}<i class="plate-scanline"></i></div>
   <div class="home-stack front" aria-hidden="true"><img class="hs blade" src="/assets/game/blade-a.webp" alt=""><img class="hs star s1" src="/assets/game/star-blue.webp" alt=""><img class="hs star s2" src="/assets/game/star-blue.webp" alt=""><img class="hs star s3" src="/assets/game/star-blue.webp" alt=""></div>
   <span class="home-stamp" aria-hidden="true">${P.name.lines[0][0]}</span>
-  <div class="home-copy"><span class="eyebrow" data-scramble>${P.roleEn}</span><div class="home-wordmark" aria-label="${P.name.latin}"><span>The work of</span><span>${P.name.lines[0]}</span><span>${P.name.lines[1]}</span></div><div class="title-cn"><span class="hairline"></span><h1>${P.name.cn}</h1><span class="tiny-symbol">✦</span></div><p class="home-quote">${P.tagline}</p><div class="home-actions"><button class="primary" data-action="works" data-scan><span>看作品集</span><small>${works.length} PROJECTS · ${P.since}—</small>${icon('arrow')}</button><button class="text-button" data-action="contact" data-scan>联系 <span>↗</span></button></div></div>
+  <div class="home-copy"><span class="eyebrow" data-scramble>${P.roleEn}</span><div class="home-wordmark" aria-label="Welcome 欢迎来到我的频道"><span>Welcome</span><span class="cn">欢迎来到</span><span class="cn">我的频道</span></div><div class="title-cn"><span class="hairline"></span><h1>${P.name.cn}</h1><span class="tiny-symbol">✦</span></div><p class="home-quote">${P.tagline}</p><div class="home-actions"><button class="primary" data-action="works" data-scan><span>看作品集</span><small>${works.length} PROJECTS · ${P.since}—</small>${icon('arrow')}</button><button class="text-button" data-action="contact" data-scan>联系 <span>↗</span></button></div></div>
   <nav class="home-dial" aria-label="快速入口">${[['works','作品集','WORKS','route'],['about','个人介绍','ABOUT','info'],['skills','留言','GUESTBOOK','bird']].map(([a,cn,en,ic],i)=>`<button data-action="${a}" data-scan style="--i:${i}"><span class="dial-icon">${icon(ic)}<i></i></span><b>${cn}<small>${en}</small></b></button>`).join('')}</nav>
   <div class="home-side">MOTION. &nbsp; INTERFACE. &nbsp; CODE.</div>
  </section>
@@ -67,8 +66,8 @@ app.innerHTML=resolveMarkupAssets(`
  <section id="records" class="screen hidden" aria-label="作品集"></section>
 
  <section id="atlas" class="screen hidden" aria-label="留言"><div class="atlas-stage" data-plate="0" data-cursor="留言"><div class="atlas-plate p0">${birdPlate(true,'skill',skillBirds.length)}</div><i class="atlas-scan"></i></div>
-  <div class="atlas-head"><span class="eyebrow" data-scramble>GUESTBOOK / ${skills.length} NOTES</span><h2>留言</h2><p>每一只羽兽带一句话 · 悬停读，点击放飞</p></div>
-  <div class="atlas-readout"><small>NOTE</small><b id="skill-name">--</b><div id="skill-spec">将指针移到羽兽上<br>读一条留言</div></div>
+  <div class="atlas-head"><span class="eyebrow" data-scramble>GUESTBOOK / ${skills.length} NOTES</span><h2>留言</h2><p>每一只蝴蝶带一句话 · 悬停读，点击放飞</p></div>
+  <div class="atlas-readout"><small>NOTE</small><b id="skill-name">--</b><div id="skill-spec">将指针移到蝴蝶上<br>读一条留言</div></div>
   <div class="atlas-tools"><div class="tools-0" style="display:flex"><button class="line-button" data-action="recall">召回 RECALL</button><span class="atlas-count">已放飞 <b id="skill-count">00</b> / ${skillBirds.length}</span></div></div>
   <div class="skill-list">${skills.map((s,i)=>`<button data-skill="${i}"><small>${String(i+1).padStart(2,'0')}</small>${s.en}<i style="--l:${s.level/5}"></i></button>`).join('')}</div>
  </section>
@@ -103,6 +102,28 @@ function tickClock(){
 }
 if(clockH){tickClock();setInterval(tickClock,200);}
 
+/* ── 表盘外圈的旋转文字：按长度重复铺在圆周上，末尾留一段缺口，环不闭合 ── */
+function fitOrbit(){
+ const tp=document.querySelector<SVGTextPathElement>('.hp-orbit textPath');
+ if(!tp)return;
+ const text=tp.parentElement as SVGTextElement|null;
+ if(!text)return;
+ const legend=tp.dataset.legend||(tp.dataset.legend=tp.textContent||'');
+ if(!legend)return;
+ const span=2*Math.PI*400*.70; // 修改开口
+ text.style.letterSpacing='0px';tp.textContent=legend;
+ const base=tp.getComputedTextLength?tp.getComputedTextLength():0;
+ if(!(base>0))return;
+ const n=Math.max(1,Math.floor(span/base));
+ tp.textContent=legend.repeat(n);
+ const count=legend.length*n;
+ const ls=Math.max(0,(span-base*n)/Math.max(1,count-1));
+ text.style.letterSpacing=ls.toFixed(2)+'px';
+ tp.removeAttribute('textLength');
+ tp.removeAttribute('lengthAdjust');
+}
+fitOrbit();
+if(document.fonts?.ready)document.fonts.ready.then(fitOrbit);
 
 const reticle=new Reticle(stage),field=new NodeField($<HTMLCanvasElement>('#node-field'));
 const visited=new Set<string>(readStored<string[]>('site-visited',[])??[]);
@@ -148,7 +169,7 @@ function finishCollect(k:number){
 function collect(el:HTMLElement){
  const k=+el.dataset.key!;
  if(!Number.isInteger(k)||got.has(k))return;
- got.add(k);saveStored(LETTER_KEY,[...got]);
+ got.add(k);
  const from=el.getBoundingClientRect();
  const slot=$(`[data-letter="${k}"]`);
  const to=slot?slot.getBoundingClientRect():null;
@@ -169,7 +190,7 @@ function screenOf(p:Page){return $(p==='home'?'#home':p==='about'?'#operators':p
 function setPage(next:Page,animate=true){
  const anim=animate&&motion;const outgoing=anim?active:null;
  if(anim)burst($('#transition-fx'),BURST[next],P.accent);
- page=next;stage.className=`${SKIN[next]} site${blueprint?' theme-blueprint':''}${motion?'':' reduced-motion'}${reticle.enabled?' has-reticle':''}`;
+ page=next;stage.className=`${SKIN[next]} site${motion?'':' reduced-motion'}${reticle.enabled?' has-reticle':''}`;
  document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
  const incoming=screenOf(next);incoming.classList.remove('hidden');active=incoming;
  document.querySelectorAll<HTMLElement>('[data-nav]').forEach(b=>{b.classList.toggle('selected',b.dataset.nav===next);b.setAttribute('aria-current',b.dataset.nav===next?'page':'false');});
@@ -192,7 +213,6 @@ function showSkill(n:number){const s=skillOf(n);const el=$('#skill-name');if(el.
 
 const actions:Record<string,(el:HTMLElement)=>void>={
  home:()=>setPage('home'),about:()=>setPage('about'),glyph:el=>collect(el),secret:()=>openSecret(),works:()=>setPage('works'),skills:()=>setPage('skills'),contact:()=>setPage('contact'),
- blueprint:()=>{blueprint=!blueprint;saveStored('site-blueprint',blueprint);stage.classList.toggle('theme-blueprint',blueprint);$('#blueprint-toggle').classList.toggle('active',blueprint);},
  fullscreen:()=>{void (document.fullscreenElement?document.exitFullscreen():stage.requestFullscreen()).catch(()=>toast('可使用 F11 进入全屏'));},
  'arc-tag':el=>showFact(+el.dataset.tag!),'work-prev':()=>route.step(-1),'work-next':()=>route.step(1),'route-seq':el=>route.seekStage(+el.dataset.seq!),'route-pins-clear':()=>route.clearPins(),
  recall:()=>{document.querySelectorAll('.p0 .flown').forEach(g=>{g.classList.remove('flown');g.classList.add('returning');});released.clear();countTo($('#skill-count'),0);},
@@ -216,7 +236,6 @@ document.addEventListener('keydown',e=>{
  if(e.target instanceof HTMLInputElement||e.ctrlKey||e.metaKey)return;
  const i=PAGES.findIndex(p=>p[0]===page);
  if(e.key==='Escape'&&page!=='home')setPage('home');
- if(e.key.toLowerCase()==='b')actions.blueprint($('#blueprint-toggle'));
  if(e.key==='ArrowRight'||e.key==='ArrowLeft'){const d=e.key==='ArrowRight'?1:-1;if(page==='works'){e.preventDefault();route.step(d);}else{e.preventDefault();setPage(PAGES[wrap(i+d,PAGES.length)][0]);}}
 });
 setInterval(()=>{if(motion&&!document.hidden)morphGlyph($('#glyphs'));},2300);
@@ -224,7 +243,6 @@ setInterval(()=>{if(motion&&!document.hidden)morphGlyph($('#glyphs'));},2300);
 // Deep links: #/about, #/works/wk-03, #/skills, #/contact.
 function openHash(){const [m='',arg='']=location.hash.replace(/^#\/?/,'').split('/').map(decodeURIComponent);if(m==='works'){const i=works.findIndex(w=>w.id===arg);if(i>=0)route.selected=i;}if(PAGES.some(p=>p[0]===m)){setPage(m as Page,false);return true;}return false;}
 addEventListener('hashchange',()=>{openHash();});
-$('#blueprint-toggle').classList.toggle('active',blueprint);
 if(!openHash())setPage('home',false);
 let last=performance.now();
 function frame(now:number){const dt=Math.min((now-last)/1000,.1);last=now;if(!document.hidden){
@@ -254,4 +272,3 @@ function openSecret(){
  }
  secretEl.classList.add('on');
 }
-if(got.size===LETTERS.length)updateWord();
