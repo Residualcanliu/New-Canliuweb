@@ -9,7 +9,7 @@ import type { RouteNode } from '../data.ts';
 export const profile = {
  name: { lines: ['G', 'CH'], cn: 'GCH', latin: 'GCH' },
  role: '设计与前端', roleEn: 'DESIGN / FRONT-END',
- location: '上海 · SHANGHAI', since: 2019,
+ location: '广东 · GUANGDONG', since: 2026,
  tagline: '亦或是你熟悉的另一个名字<br>Residual v Map1e（canliu）',
  taglineEn: 'BETWEEN PRINT, GRID AND CODE',
  quote: '好的界面，像一张刚刚套准的印张。',
@@ -20,40 +20,41 @@ export const profile = {
   { label: '工具', en: 'TOOLS', value: 'TS · Three.js · Figma' }
  ],
  years: 6,
- // 个人图版外圈那行旋转文字：网名 + 方向，循环三圈。
+
  orbit: 'CANLIU · RESIDUAL V MAP1E · DESIGN / FRONT-END · 平面 · 交互 · 前端 · ',
- // 个人图版：图形 先锋(旗)/近卫(剑)/重装(盾)/狙击(准星)，stars 1–6。
+
  plateRole: '狙击', plateStars: 5, accent: '#2B4BD8',
  resume: '#',
  contact: {
-  email: 'hello@gch.studio',
+  email: 'gaochaohongmail@foxmail.com',
   links: [
    { label: 'GitHub', url: 'https://github.com/' },
    { label: '即刻', url: 'https://web.okjike.com/' },
-   { label: '邮件', url: 'mailto:hello@gch.studio' }
+   { label: '邮件', url: 'mailto:gaochaohongmail@foxmail.com' }
   ]
  }
 };
 
-const work = (id: string, code: string, kind: RouteNode['kind'], x: number, y: number, title: string, en: string, meta: string, description: string, preview: string, tags: string[], label?: string, link?: string, repo?: string): RouteNode =>
- ({ id, code, kind, x, y, title, en, meta, description, preview: `game/${preview}.webp`, tags, link: link ?? '#', repo, label });
+const work = (id: string, code: string, kind: RouteNode['kind'], x: number, y: number, title: string, en: string, meta: string, description: string, preview: string, tags: string[], label?: string, link?: string, repo?: string, goto?: string): RouteNode =>
+ ({ id, code, kind, x, y, title, en, meta, description, preview: `game/${preview}.webp`, tags, link: link ?? '#', repo, goto, label });
 
 // 作品集：主项目在轴上，实验在上方分支，写作在下方。
 export const works: RouteNode[] = [
  work('wk-01', 'WK-01', 'operation', 66, 60, '开印 · 个人网站', 'THE PRINT RUN', '2026 · 设计 / 开发', '以印刷套准为开场语言的个人站：纸张、钴蓝印版、网点与版心线，全部矢量实时绘制。', 'stage-01', ['Three.js', 'Canvas', '动效'], 'PROJECT'),
- work('wk-02', 'WK-02', 'operation', 116, 60, '城市噪声地图', 'CITY OF NOISE', '2025 · 数据可视化', '用一年的环境噪声数据生成可缩放的城市剖面，按小时回放城市的呼吸。', 'stage-03', ['D3', '数据', 'WebGL'], 'PROJECT'),
- work('nt-01', 'NOTE-01', 'tutorial', 389, 82, '写给设计师的 Canvas 笔记', 'NOTES ON CANVAS', '2025 · 文章', '一组关于离屏画布、逐帧动画与性能的写作，附可交互示例。', 'stage-tr01', ['写作', '教程'], 'NOTE'),
- work('wk-03', 'WK-03', 'operation', 166, 60, '展览导览系统', 'EXHIBITION GUIDE', '2024 · 交互设计', '为一次影像展设计的移动端导览：展品识别、路线推荐与离线缓存。', 'stage-05', ['移动端', '展览'], 'PROJECT'),
- work('wk-04', 'WK-04', 'operation', 216, 60, '品牌动态规范', 'MOTION GUIDELINES', '2024 · 动效设计', '为一个消费品牌建立动效语言：节奏、缓动曲线、转场与组件动效库。', 'stage-06', ['品牌', '规范'], 'PROJECT'),
- work('lab-01', 'LAB-01', 'story', 248, 38, '手势画布', 'GESTURE CANVAS', '实验 · 2025', '用摄像头追踪手势，在画布上留下会消散的线条。', 'stage-ex02', ['实验', '手势'], 'LAB'),
- work('match-03', 'MATCH-03', 'story', 332, 38, '企业融资风险中控', 'FINANCIAL RISK CONTROL', '2026 · 竞赛 / 智能体', '基于智谱 AI 的企业融资风险中控服务软件：集成自然语言对话、合规性检测、情感评估与行为预测，Python + PyQt 桌面端，分析结果可导出 PDF 报告。26 年机设大赛省三等奖。', 'stage-match', ['智能体', '大模型', 'PyQt', '合规风控'], 'MATCH', 'https://github.com/Residualcanliu/Personal-demo2'),
+ work('wk-02', 'WK-02', 'operation', 116, 60, '基于 MediaPipe 与多阶段增强的户外手势识别预处理模块', 'OUTDOOR GESTURE PREPROCESSING', '2024 · 计算机视觉', '基于 MediaPipe 与多阶段增强的户外手势识别预处理模块：针对户外复杂场景中常见的光照不均、背景遮挡、设备震动等干扰，设计并实现了一套多阶段的强化图像预处理策略。作为手势识别系统的核心前置组件，有效提升后续特征提取与分类模型在非受控环境下的鲁棒性。本项目用于毕业设计部分，详细请见<strong>最新项目</strong>。', 'stage-gesture', ['计算机视觉', 'MediaPipe', 'OpenCV', '图像预处理', '鲁棒性优化', '边缘计算'], 'PROJECT', undefined, undefined, 'next'),
+ work('nt-01', 'NOTE-01', 'tutorial', 389, 82, '探照灯式工作流 Agent', 'SPOTLIGHT WORKFLOW SKILLS', '2026 · 工作流 / Agent', '一套把「思考 → 执行 → 复盘」编码成可复用技能文件的个人工作流系统：规范模型如何拆解内容、如何复盘，未提及的模块保持粗粒度，避免过度设计。', 'stage-spotlight', ['Agent', '工作流', 'Prompt Engineering', '效率工具'], 'SKILL', 'https://github.com/Residualcanliu/Spotlight-Workflow-skills'),
+ work('demo-01', 'DEMO-01', 'operation', 166, 60, '基于PPO的植物大战僵尸\n强化学习AI', 'PvZ Bot Training Demo', '2025 · 机器学习', '一个处于概念验证阶段（未完成）的强化学习项目。核心思路是直接读取游戏内存获取结构化状态，通过PPO进行强化学习，将精力聚焦在RL算法本身。', 'stage-PPO', ['强化学习', 'PPO', 'Python', '游戏AI'], 'PROJECT', 'https://github.com/Residualcanliu/PVZ_bot_training_demo'),
+ work('wk-04', 'WK-04', 'operation', 216, 60, 'Iwatch-Health 健康管理系统', 'SVM WEARABLE HEALTH MONITOR', '2025 · 机器学习 / 软著', '针对智能穿戴设备设计的、基于支持向量机（SVM）的运动—睡眠质量监测与分析模型软件：用特征工程把原始传感数据整理成可判别特征，再交给 SVM 分类。获 2025 年（第 18 届）中国大学生计算机设计大赛二等奖，已登记软件著作权（登记号 2026SR0391421）。', 'stage-iwatch', ['SVM', '可穿戴设备', '机器学习', '健康监测', '特征工程'], 'PROJECT', 'https://register.ccopyright.com.cn/querySoftCopyright.html'),
+ work('web-01', 'WEB-01', 'story', 248, 38, '（旧）个人展示网站', 'CANLIU WEB · NEXT.JS', '2025 · 全栈 / 个人站', '基于 Next.js 构建的个人网站：博客、学习笔记、AstrBot 插件等模块，首页是一颗 WebGL 实时渲染的黑洞（光线追踪）。代码已开源。', 'stage-web01', ['Next.js', 'React', '个人网站', 'WebGL', 'AstrBot'], 'WEB', 'https://canliuweb.cc.cd', 'https://github.com/Residualcanliu/canliu-Personal-website-next'),
+ work('match-03', 'MATCH-03', 'story', 332, 38, '企业融资风险中控', 'FINANCIAL RISK CONTROL', '2026 · 竞赛 / 智能体', '基于智谱 AI 的企业融资风险中控服务软件：集成自然语言对话、合规性检测、情感评估与行为预测，Python + PyQt 桌面端，分析结果可导出 PDF 报告。获2026 年（第 19 届）中国大学生计算机设计大赛二等奖。', 'stage-match', ['智能体', '大模型', 'PyQt', '合规风控'], 'MATCH', 'https://github.com/Residualcanliu/Personal-demo2'),
+ work('wk-05', 'WK-05', 'operation', 310, 60, 'AI 21 点竞技场', 'OLLAMA BLACKJACK ARENA', '2026 · 本地 LLM / 游戏 AI', '自主设计本地大模型在 21 点游戏中互相对战的模型竞技场：轮流坐庄、盲注对赌、交替要牌，所有下注与要牌决策均由 Ollama 模型实时生成，浏览器端可实时观看牌桌与 AI 的思考过程。', 'stage-blackjack', ['Ollama', '本地 LLM', '游戏 AI', '可视化', 'Python'], 'PROJECT', 'https://github.com/Residualcanliu/LocalOllama_Blackjack_Arena/'),
  work('comp-01', 'COMP-01', 'operation', 340, 78, '倒置 LLM 图谱查询', 'INVERTED LLM · GRAPHRAG', '2026 · 企业项目', '面向工业作业知识场景化建模与即时调度的「倒置 LLM」架构：大模型只把自然语言翻译成 Cypher，取数与计算交给 Neo4j，从推理者降级为翻译器，显著提升查询准确率与灵活性。', 'stage-graphrag', ['企业项目', 'RAG', 'Cypher', 'Neo4j'], 'COMPANY', 'https://github.com/Residualcanliu/inverted-llm-graphrag'),
- work('wk-05', 'WK-05', 'operation', 364, 60, 'ComfyPortal', 'COMFY AI PLATFORM', '2026 · 全栈 / AI', '基于 ComfyUI + Next.js + FastAPI + PostgreSQL + Redis 构建的自用 AI 图像生成平台：云端控制面与本地计算面分离，用 Tailscale 组网把本地 GPU 与云端 VPS 连成一张私有网络。', 'stage-comfy', ['ComfyUI', 'Next.js', 'FastAPI', 'Tailscale'], 'PROJECT', 'https://comfyportal.cc.cd', 'https://github.com/Residualcanliu/comfy-portal'),
- work('wk-06', 'WK-06', 'operation', 414, 60, '新个人网站', 'THE PRINT RUN', '2026 · 设计 / 开发', '参考明日方舟风格的印刷语言：以套准开场，纸张、钴蓝印版、网点与版心线全部矢量实时绘制。', 'stage-myweb', ['Three.js', 'Canvas', '动效'], 'PROJECT', 'personal.html'),
+ work('wk-06', 'WK-06', 'operation', 364, 60, 'ComfyPortal', 'COMFY AI PLATFORM', '2026 · 全栈 / AI', '基于 ComfyUI + Next.js + FastAPI + PostgreSQL + Redis 构建的自用 AI 图像生成平台：云端控制面与本地计算面分离，用 Tailscale 组网把本地 GPU 与云端 VPS 连成一张私有网络。', 'stage-comfy', ['ComfyUI', 'Next.js', 'FastAPI', 'Tailscale'], 'PROJECT', 'https://comfyportal.cc.cd', 'https://github.com/Residualcanliu/comfy-portal'),
+ work('wk-07', 'WK-07', 'operation', 414, 60, '新个人网站', 'THE PRINT RUN', '2026 · 设计 / 开发', '参考明日方舟风格的印刷语言：以套准开场，纸张、钴蓝印版、网点与版心线全部矢量实时绘制。', 'stage-myweb', ['Three.js', 'Canvas', '动效'], 'PROJECT', 'personal.html'),
  work('next', 'NEXT', 'special', 470, 60, '下一个项目', 'YOUR PROJECT HERE', '期待合作', '这里留给下一段合作。点「功能」，在最后一页找到联系方式。', 'stage-s01', ['合作'], 'NEXT')
 ];
 export const WORKS_WIDTH = 540;
-export const workLinks: [string, string][] = [['wk-04', 'lab-01'], ['lab-01', 'match-03'], ['match-03', 'wk-05'], ['wk-05', 'nt-01'], ['nt-01', 'wk-06']];
+export const workLinks: [string, string][] = [['wk-04', 'web-01'], ['web-01', 'match-03'], ['match-03', 'wk-06'], ['wk-06', 'nt-01'], ['nt-01', 'wk-07']];
 
 // 留言墙：每一只羽兽带一条留言；name 是留言内容，en 是署名与时间。
 export const skills = [
@@ -76,6 +77,6 @@ export const secret = {
   { label: 'Steam', value: 'steamcommunity.com/id/canliu', url: 'https://steamcommunity.com/' },
   { label: 'GitHub', value: 'github.com/canliu', url: 'https://github.com/' },
   { label: '哔哩哔哩', value: 'space.bilibili.com', url: 'https://space.bilibili.com/' },
-  { label: '写信', value: 'hello@gch.studio', url: 'mailto:hello@gch.studio' }
+  { label: '写信', value: 'gaochaohongmail@foxmail.com', url: 'mailto:gaochaohongmail@foxmail.com' }
  ]
 };

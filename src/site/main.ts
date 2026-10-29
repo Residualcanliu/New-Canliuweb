@@ -133,10 +133,10 @@ function workPanel(n:RouteNode,i:number){
  return `<div class="rp-head"><span class="rp-kind">${n.label??'PROJECT'}</span><span class="rp-code" data-scramble>${n.code}</span><span class="rp-time">${n.meta??''}</span></div>
   <figure class="rp-image stage"><img src="${assetUrl(n.preview??'game/stage-01.webp')}" alt="${n.title} 的预览（占位图）" draggable="false"><b></b><b></b><b></b><b></b><figcaption>PREVIEW · ${String(i+1).padStart(2,'0')} / ${String(works.length).padStart(2,'0')}</figcaption></figure>
   <h3>${n.title}</h3><p class="rp-en">${n.en}</p><p class="rp-desc">${n.description}</p><div class="rp-tags">${(n.tags??[]).map(t=>`<span>${t}</span>`).join('')}</div>
-  <div class="rp-actions">${n.kind==='special'?'<button class="line-button solid" data-action="contact">联系我 →</button>':`<a class="line-button solid" href="${n.link??'#'}" target="_blank" rel="noreferrer">查看项目 ↗</a>${n.repo?`<a class="line-button" href="${n.repo}" target="_blank" rel="noreferrer">开源仓库 ↗</a>`:''}`}</div>
+  <div class="rp-actions">${n.kind==='special'?'<button class="line-button solid" data-action="contact">联系我 →</button>':`${n.goto?`<button class="line-button solid" data-action="route-goto" data-id="${n.goto}">查看项目 →</button>`:`<a class="line-button solid" href="${n.link??'#'}" target="_blank" rel="noreferrer">查看项目 ↗</a>`}${n.repo?`<a class="line-button" href="${n.repo}" target="_blank" rel="noreferrer">开源仓库 ↗</a>`:''}`}</div>
   <div class="rp-step"><button data-action="work-prev" aria-label="上一个作品">←</button><span>${n.code}</span><button data-action="work-next" aria-label="下一个作品">→</button></div>`;
 }
-const route=new RouteMap($('#records'),visited,()=>new Set(),id=>{saveStored('site-visited',[...visited]);if(page==='works')history.replaceState(null,'',`#/works/${id}`);},{nodes:works,width:WORKS_WIDTH,links:workLinks,years:[{label:'2024',at:66},{label:'2025',at:216},{label:'2026',at:364,now:true}],head:{eyebrow:'SELECTED WORKS',title:'作品集',sub:`WORKS / ${P.since}—${new Date().getFullYear()}`},counter:'已看作品',panel:workPanel,
+const route=new RouteMap($('#records'),visited,()=>new Set(),id=>{saveStored('site-visited',[...visited]);if(page==='works')history.replaceState(null,'',`#/works/${id}`);},{nodes:works,width:WORKS_WIDTH,links:workLinks,years:[{label:'2024',at:66},{label:'2025',at:166},{label:'2026',at:310,now:true}],head:{eyebrow:'SELECTED WORKS',title:'作品集',sub:`WORKS / ${P.since}—${new Date().getFullYear()}`},counter:'已看作品',panel:workPanel,
  portals:''});
 route.seq.reduced=!motion;
 
@@ -214,7 +214,7 @@ function showSkill(n:number){const s=skillOf(n);const el=$('#skill-name');if(el.
 const actions:Record<string,(el:HTMLElement)=>void>={
  home:()=>setPage('home'),about:()=>setPage('about'),glyph:el=>collect(el),secret:()=>openSecret(),works:()=>setPage('works'),skills:()=>setPage('skills'),contact:()=>setPage('contact'),
  fullscreen:()=>{void (document.fullscreenElement?document.exitFullscreen():stage.requestFullscreen()).catch(()=>toast('可使用 F11 进入全屏'));},
- 'arc-tag':el=>showFact(+el.dataset.tag!),'work-prev':()=>route.step(-1),'work-next':()=>route.step(1),'route-seq':el=>route.seekStage(+el.dataset.seq!),'route-pins-clear':()=>route.clearPins(),
+ 'arc-tag':el=>showFact(+el.dataset.tag!),'work-prev':()=>route.step(-1),'work-next':()=>route.step(1),'route-goto':el=>{const i=works.findIndex(w=>w.id===el.dataset.id);if(i>=0)route.select(i);},'route-seq':el=>route.seekStage(+el.dataset.seq!),'route-pins-clear':()=>route.clearPins(),
  recall:()=>{document.querySelectorAll('.p0 .flown').forEach(g=>{g.classList.remove('flown');g.classList.add('returning');});released.clear();countTo($('#skill-count'),0);},
  part:()=>{covenant.reset();$('#contact-card').classList.remove('visible');},reveal:()=>reveal(),
  'copy-mail':()=>{void navigator.clipboard?.writeText(P.contact.email).then(()=>toast('邮箱已复制'),()=>toast(P.contact.email));}
