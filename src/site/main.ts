@@ -90,11 +90,15 @@ const clockH=document.querySelector<SVGGElement>('.hp-hand-h');
 const clockM=document.querySelector<SVGGElement>('.hp-hand-m');
 const clockS=document.querySelector<SVGGElement>('.hp-hand-s');
 const clockTxt=document.querySelector<SVGTextElement>('.hp-time');
+const clockNums=[...document.querySelectorAll<SVGTextElement>('.hp-num')];
+const clockRing=document.querySelector<SVGCircleElement>('.hp-sec');
 function tickClock(){
  const d=new Date();
  const sec=d.getSeconds(), min=d.getMinutes()+sec/60, hr=(d.getHours()%12)+min/60;
  const set=(el:SVGGElement|null,a:number)=>{if(el)el.setAttribute('transform',`rotate(${a.toFixed(3)} 520 470)`);};
  set(clockH,hr*30);set(clockM,min*6);set(clockS,sec*6);
+ if(clockRing)clockRing.style.strokeDashoffset=String((1-(sec+d.getMilliseconds()/1000)/60)*1238);
+ const hi=d.getHours()%12||12;clockNums.forEach(n=>n.classList.toggle('on',+n.dataset.hr===hi));
  if(clockTxt)clockTxt.textContent=`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(sec).padStart(2,'0')}  ·  ${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
 }
 if(clockH){tickClock();setInterval(tickClock,200);}

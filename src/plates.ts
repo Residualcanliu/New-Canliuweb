@@ -181,7 +181,7 @@ export function homePlate(T:PlateTheme=PAGE,mark='06',legend="LATERANO · 1099 �
    <path d="${ring(C[0],C[1],268,r,1.4)}" style="stroke-width:.8;stroke-dasharray:2 6"/><path d="${ticks(C[0],C[1],300,96,r)}" style="stroke-width:.9;opacity:.7"/>
    <path d="${brokenAxis(C[0],80,C[0],900,r,5)}${brokenAxis(90,C[1],950,C[1],r,5)}" style="stroke-width:.6;opacity:.35"/></g>
    ${yRuler(40,240,760,r,T.ink)}${column(968,150,'FAITH · ORDER · FREEDOM · A JOURNEY TOWARDS THE LIGHT',T.ink)}${registration(90,170,18,r,T.ink)}${registration(930,880,18,r,T.ink)}${crops(16,16,984,984,T.ink)}`},
-  {d:.45,cls:'spin',defs:`<path id="${id}-orbit" d="M520 70a400 400 0 1 1 0 800a400 400 0 1 1 0-800"/>`,body:`<text style="font:600 15px ${MONO};letter-spacing:6px;fill:${T.ink}"><textPath href="#${id}-orbit">${legend.repeat(2)}</textPath></text>
+  {d:.45,cls:'spin',defs:`<path id="${id}-orbit" d="M520 70a400 400 0 1 1 0 800a400 400 0 1 1 0-800"/>`,body:`<text style="font:600 17px ${MONO};letter-spacing:6px;fill:${T.ink}"><textPath href="#${id}-orbit">${legend.repeat(2)}</textPath></text>
    <path d="${ring(C[0],C[1],382,r,1.2)}" style="fill:none;stroke:${T.ink};stroke-width:1.6;stroke-dasharray:.5 11;stroke-linecap:round"/>
    ${[...Array(4)].map((_,k)=>{const a=r()*TAU;return `<circle cx="${f(C[0]+Math.cos(a)*382)}" cy="${f(C[1]+Math.sin(a)*382)}" r="${k%2?4:7}" style="fill:${T.paper};stroke:${T.accent};stroke-width:1.6"/>`;}).join('')}`},
   {d:.5,cls:'spin rev',body:`<path d="${brush(arcPts(C[0],C[1],322,-2.6,-.4,r,1.4),20,.45)}" style="fill:${T.accent}"/><path d="${arc(C[0],C[1],334,-2.5,.1,r,1)}" style="fill:none;stroke:${T.accent};stroke-width:1"/>`},
@@ -191,21 +191,6 @@ export function homePlate(T:PlateTheme=PAGE,mark='06',legend="LATERANO · 1099 �
    ${inked(ring(C[0],C[1],238,r,1.4),`fill:none;stroke:${T.ink};stroke-width:1.2`)}`},
   {d:.9,body:`<path d="${ring(C[0],196,190,r,1.6,.21)}" style="fill:none;stroke:${T.ink};stroke-width:2.8"/><path d="${ring(C[0],198,150,r,1,.19)}" style="fill:none;stroke:${T.ink};stroke-width:.9;opacity:.6"/>
    <path d="${brush(arcPts(C[0],196,190,.2,2.95,r,1,.21),11,.5)}" style="fill:${T.accent}"/>
-   <g class="hp-dial" style="fill:none;stroke:${T.paper}">
-    ${[...Array(60)].map((_,i)=>{const a=i/60*TAU-Math.PI/2,big=i%5===0,r0=188,r1=big?158:176;return `<path d="M${f(C[0]+Math.cos(a)*r0)} ${f(C[1]+Math.sin(a)*r0)}L${f(C[0]+Math.cos(a)*r1)} ${f(C[1]+Math.sin(a)*r1)}" style="stroke-width:${big?3:1.1};opacity:${big?.95:.45}"/>`;}).join('')}
-    <circle cx="${C[0]}" cy="${C[1]}" r="196" style="stroke-width:1;opacity:.55"/>
-   </g>
-   <g style="fill:${T.paper};font:400 46px ${SERIF};text-anchor:middle;opacity:.95">
-    <text x="520" y="342">12</text><text x="664" y="486">3</text><text x="520" y="630">6</text><text x="376" y="486">9</text>
-   </g>
-   <text x="520" y="556" text-anchor="middle" style="font:600 9px ${MONO};letter-spacing:3.6px;fill:${T.paper};opacity:.55">CANLIU · RESIDUAL V MAP1E</text>
-   <g class="hp-hands">
-    <g class="hp-hand hp-hand-h"><path d="M514 474 L518.4 396 L520 372 L521.6 396 L526 474 Z" style="fill:${T.paper}"/></g>
-    <g class="hp-hand hp-hand-m"><path d="M517 474 L519.2 348 L520 326 L520.8 348 L523 474 Z" style="fill:${T.paper}"/></g>
-    <g class="hp-hand hp-hand-s"><path d="M519.3 502 L519.9 300 L520.1 300 L520.7 502 Z" style="fill:${T.paper}"/><circle cx="520" cy="491" r="4.4" style="fill:#c94b5c"/><circle cx="520" cy="305" r="3.4" style="fill:#c94b5c"/></g>
-   </g>
-   <circle cx="520" cy="470" r="8.4" style="fill:${T.paper}"/><circle cx="520" cy="470" r="3.2" style="fill:${T.cobalt}"/>
-   <text class="hp-time" x="520" y="264" text-anchor="middle" style="font:12px ${MONO};letter-spacing:3px;fill:${T.paper};opacity:.85">--:--:-- · --.--</text>
    ${constellation(250,700,140,8,r,T.ink,T.accent)}
    ${hexCluster(850,690,26,r,{ink:T.ink,paper:T.paper,accent:T.accent,cobalt:T.cobalt},'<circle r="60"/><path d="M0-90V90M-90 0H90"/>',['01','02','03','04','05','06'])}
    ${mosaic(170,300,64,12,r,[T.cobalt,T.accent,T.ink,'#c7cecd'])}${glitchStrip(620,820,300,34,r,[T.ink,T.cobalt,T.accent])}`},
@@ -218,9 +203,28 @@ export function homePlate(T:PlateTheme=PAGE,mark='06',legend="LATERANO · 1099 �
   {d:1.15,body:`<g style="fill:${T.ink}">${birds}</g>${[[820,420,20,T.accent],[300,190,14,T.cobalt],[690,770,16,T.ink]].map(([x,y,s,c])=>`<path class="pl-twinkle" d="${sparkle(+x,+y,+s)}" style="fill:${c}"/>`).join('')}`},
   {d:1.5,blur:1.6,body:`${[...Array(3)].map((_,k)=>`<path d="${blade([110,900,760][k],[880,180,960][k],240+r()*140,18+r()*14,r()*TAU,r)}" style="fill:${[T.ink,T.cobalt,T.accent][k]};opacity:.6"/>`).join('')}`},
   {d:1.35,body:`<text x="76" y="964" style="font:400 300px ${SERIF};fill:none;stroke:${T.cobalt};stroke-width:1.4;opacity:.35">${mark}</text><text x="70" y="960" style="font:400 300px ${SERIF};fill:none;stroke:${T.accent};stroke-width:1.8">${mark}</text>`},
-  {d:.6,cls:'pl-construct',body:`<g style="fill:none;stroke:${T.accent}"><path d="${rule(220,C[1],820,C[1],r,8,1)}${rule(C[0],170,C[0],770,r,8,1)}${rule(284,800,756,800,r,6,1)}M284 788v24M756 788v24${rule(C[0],C[1],732,258,r,6,1)}" style="stroke-width:.9"/>
+  {d:.6,cls:'pl-construct',body:`<g style="fill:none;stroke:${T.accent}"><path d="${rule(284,800,756,800,r,6,1)}M284 788v24M756 788v24" style="stroke-width:.9"/>
    <rect x="300" y="250" width="440" height="440" style="stroke-width:.8;stroke-dasharray:4 6"/></g>
-   <text x="520" y="832" text-anchor="middle" style="font:13px ${MONO};fill:${T.accent}">Ø 600 · DISC R 236</text><text x="640" y="320" style="font:13px ${MONO};fill:${T.accent}">HALO 380 × 80</text><text x="742" y="462" style="font:12px ${MONO};fill:${T.accent}">01 / SEAL</text>`}
+   <text x="520" y="832" text-anchor="middle" style="font:13px ${MONO};fill:${T.accent}">Ø 600 · DISC R 236</text><text x="640" y="320" style="font:13px ${MONO};fill:${T.accent}">HALO 380 × 80</text><text x="742" y="462" style="font:12px ${MONO};fill:${T.accent}">01 / SEAL</text>`},
+  // 钟面：蓝盘保持原尺寸不动；盘内白色，盘外只留 12 个墨色索引短线，把表的边界推到盘外一点。
+  {d:.6,cls:'hp-face',body:`<g class="hp-bezel" style="fill:none;stroke:${T.ink}">
+    ${[...Array(12)].map((_,k)=>{const a=(k/12)*TAU-Math.PI/2;return `<path d="M${f(C[0]+Math.cos(a)*238)} ${f(C[1]+Math.sin(a)*238)}L${f(C[0]+Math.cos(a)*262)} ${f(C[1]+Math.sin(a)*262)}" style="stroke-width:${k%3===0?3.2:1.8};opacity:${k%3===0?.8:.45}"/>`;}).join('')}
+    <circle cx="${C[0]}" cy="${C[1]}" r="238" style="stroke-width:.7;opacity:.18"/>
+   </g>
+   <circle class="hp-sec" cx="${C[0]}" cy="${C[1]}" r="197" transform="rotate(-90 520 470)" style="fill:none;stroke:${T.paper};stroke-width:1.9;stroke-linecap:round;stroke-dasharray:1238;stroke-dashoffset:1238"/>
+   <g class="hp-dial" style="fill:none;stroke:${T.paper}">
+    ${[...Array(60)].map((_,i)=>{const a=i/60*TAU-Math.PI/2,big=i%5===0,r0=228,r1=big?203:215;return `<path d="M${f(C[0]+Math.cos(a)*r0)} ${f(C[1]+Math.sin(a)*r0)}L${f(C[0]+Math.cos(a)*r1)} ${f(C[1]+Math.sin(a)*r1)}" style="stroke-width:${big?4.2:1.3};opacity:${big?.95:.5}"/>`;}).join('')}
+   </g>
+   ${[...Array(12)].map((_,k)=>{const n=k+1,a=((n%12)/12)*TAU-Math.PI/2,rN=170;return `<text class="hp-num" data-hr="${n}" x="${f(C[0]+Math.cos(a)*rN)}" y="${f(C[1]+Math.sin(a)*rN+15)}" text-anchor="middle" style="fill:${T.paper};font:400 44px ${SERIF};--nx:${f(Math.cos(a)*4)}px;--ny:${f(Math.sin(a)*4)}px">${n}</text>`;}).join('')}
+   <text x="520" y="528" text-anchor="middle" style="font:600 9px ${MONO};letter-spacing:2.8px;fill:${T.paper};opacity:.66">CANLIU · RESIDUAL V MAP1E</text>
+   <text class="hp-time" x="520" y="554" text-anchor="middle" style="font:15px ${MONO};letter-spacing:2.4px;fill:${T.paper};opacity:1">--:--:-- · --.--</text>
+   <g class="hp-hands">
+    <g class="hp-hand hp-hand-h"><path d="M512.6 475 L517.4 344 L520 328 L522.6 344 L527.4 475 Z" style="fill:${T.paper}"/></g>
+    <g class="hp-hand hp-hand-m"><path d="M514.2 475 L518.2 288 L520 268 L521.8 288 L525.8 475 Z" style="fill:${T.paper}"/></g>
+    <g class="hp-hand hp-hand-s"><path d="M519.2 502 L519.9 248 L520.1 248 L520.8 502 Z" style="fill:${T.paper};stroke:${T.paper};stroke-width:2.2;stroke-linejoin:round"/><circle cx="520" cy="496" r="3.4" style="fill:#c94b5c"/><circle cx="520" cy="252" r="3" style="fill:#c94b5c"/></g>
+   </g>
+   <circle cx="520" cy="470" r="9" style="fill:${T.paper}"/><circle cx="520" cy="470" r="3.2" style="fill:${T.cobalt}"/>
+   `},
  ];
  return render(sheets,'hplate','首页主视觉 · 实时时钟',format,id);
 }
