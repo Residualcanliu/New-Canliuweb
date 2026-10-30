@@ -1,4 +1,4 @@
-import { rng, BIRD } from './graphics.ts';
+import { rng, BFLY } from './graphics.ts';
 import type { Operator } from './data.ts';
 import { f, TAU, type P, type R, path, arcPts, ring, arc, rule, brush, sweepPts, blade, sparkle, hexPts, poly, inked } from './sketch.ts';
 import { uiFrame, envelope, ticket, dove, flower, sprig, dots, sunburst, pixels, bigCircles, type CT } from './collage.ts';
@@ -171,7 +171,7 @@ export function homePlate(T:PlateTheme=PAGE,mark='06',legend="LATERANO Â· 1099 Â
  const id=`hp-${uid++}`,r=rng(61);const C:P=[520,470];const CT0:CT={ink:T.ink,paper:T.paper,accent:T.accent,cobalt:T.cobalt,vivid:VIVID};
  // Rays as thin tapered slivers rather than ruled lines.
  const rays=[...Array(40)].map((_,i)=>{const a=i/40*TAU+r()*.07,a0=262+r()*24,l=320+r()*190,w=2+r()*5;const p:P[]=[[C[0]+Math.cos(a)*a0,C[1]+Math.sin(a)*a0],[C[0]+Math.cos(a+.004)*(a0+l)/2+ (r()-.5)*3,C[1]+Math.sin(a+.004)*(a0+l)/2],[C[0]+Math.cos(a)*l,C[1]+Math.sin(a)*l]];return `<path class="hp-ray" style="--i:${i};fill:${T.ink};opacity:${f(.25+r()*.5)}" d="${brush(p,w,.25)}"/>`;}).join('');
- const birds=[...Array(9)].map((_,i)=>{const x=580+i*44+r()*30,y=230-i*18+r()*40,s=.32+r()*.38;return `<path class="hp-bird" style="--i:${i}" transform="translate(${f(x)} ${f(y)}) scale(${f(s*(i%3?1:-1))} ${f(s)})" d="${BIRD}"/>`;}).join('');
+ const birds=[...Array(9)].map((_,i)=>{const x=580+i*44+r()*30,y=230-i*18+r()*40,s=.32+r()*.38;return `<path class="hp-bird" style="--i:${i}" transform="translate(${f(x)} ${f(y)}) scale(${f(s*(i%3?1:-1))} ${f(s)}) translate(-50 -30)" d="${BFLY}"/>`;}).join('');
  const sheets:Sheet[]=[
   {d:.15,blur:3,body:`<text x="-760" y="860" transform="scale(-1 1)" text-anchor="middle" style="font:400 900px ${SERIF};fill:${T.ink};opacity:.06">N</text>
    <path d="${brush(sweepPts(40,860,980,260,70),150,.42)}" style="fill:${T.cobalt};opacity:.1"/>

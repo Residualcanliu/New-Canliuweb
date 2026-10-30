@@ -128,15 +128,21 @@ if(document.fonts?.ready)document.fonts.ready.then(fitOrbit);
 const reticle=new Reticle(stage),field=new NodeField($<HTMLCanvasElement>('#node-field'));
 const visited=new Set<string>(readStored<string[]>('site-visited',[])??[]);
 
+// 标题里写 \n 表示换行；若第一行以冒号结尾，就当成小字引题（如「下一个项目：」）。
+function titleMarkup(t:string){
+ const [head,...rest]=t.split('\n');
+ if(rest.length&&/[:：]$/.test(head))return `<span class="rp-lead">${head}</span>${rest.join(' ')}`;
+ return t;
+}
 // Works: the festival route map with project nodes and a project panel.
 function workPanel(n:RouteNode,i:number){
  return `<div class="rp-head"><span class="rp-kind">${n.label??'PROJECT'}</span><span class="rp-code" data-scramble>${n.code}</span><span class="rp-time">${n.meta??''}</span></div>
   <figure class="rp-image stage"><img src="${assetUrl(n.preview??'game/stage-01.webp')}" alt="${n.title} 的预览（占位图）" draggable="false"><b></b><b></b><b></b><b></b><figcaption>PREVIEW · ${String(i+1).padStart(2,'0')} / ${String(works.length).padStart(2,'0')}</figcaption></figure>
-  <h3>${n.title}</h3><p class="rp-en">${n.en}</p><p class="rp-desc">${n.description}</p><div class="rp-tags">${(n.tags??[]).map(t=>`<span>${t}</span>`).join('')}</div>
+  <h3>${titleMarkup(n.title)}</h3><p class="rp-en">${n.en}</p><p class="rp-desc">${n.description}</p><div class="rp-tags">${(n.tags??[]).map(t=>`<span>${t}</span>`).join('')}</div>
   <div class="rp-actions">${n.kind==='special'?'<button class="line-button solid" data-action="contact">联系我 →</button>':`${n.goto?`<button class="line-button solid" data-action="route-goto" data-id="${n.goto}">查看项目 →</button>`:`<a class="line-button solid" href="${n.link??'#'}" target="_blank" rel="noreferrer">查看项目 ↗</a>`}${n.repo?`<a class="line-button" href="${n.repo}" target="_blank" rel="noreferrer">开源仓库 ↗</a>`:''}`}</div>
   <div class="rp-step"><button data-action="work-prev" aria-label="上一个作品">←</button><span>${n.code}</span><button data-action="work-next" aria-label="下一个作品">→</button></div>`;
 }
-const route=new RouteMap($('#records'),visited,()=>new Set(),id=>{saveStored('site-visited',[...visited]);if(page==='works')history.replaceState(null,'',`#/works/${id}`);},{nodes:works,width:WORKS_WIDTH,links:workLinks,years:[{label:'2024',at:66},{label:'2025',at:166},{label:'2026',at:310,now:true}],head:{eyebrow:'SELECTED WORKS',title:'作品集',sub:`WORKS / ${P.since}—${new Date().getFullYear()}`},counter:'已看作品',panel:workPanel,
+const route=new RouteMap($('#records'),visited,()=>new Set(),id=>{saveStored('site-visited',[...visited]);if(page==='works')history.replaceState(null,'',`#/works/${id}`);},{nodes:works,width:WORKS_WIDTH,links:workLinks,years:[{label:'2024',at:116},{label:'2025',at:166},{label:'2026',at:310,now:true}],head:{eyebrow:'SELECTED WORKS',title:'作品集',sub:'WORKS / 2024—2026'},counter:'已看作品',panel:workPanel,
  portals:''});
 route.seq.reduced=!motion;
 

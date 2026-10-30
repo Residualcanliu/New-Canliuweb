@@ -1,4 +1,4 @@
-import { BIRD } from './graphics.ts';
+import { BFLY } from './graphics.ts';
 import { f, type R, ring, rule, sparkle } from './sketch.ts';
 
 // Collage pieces in the activity's illustration style: white cut-outs with thin blue outlines and a soft
@@ -32,7 +32,7 @@ export function ticket(x:number,y:number,w:number,title:string,lines:string[],r:
   ${lines.map((l,i)=>`<text x="10" y="${42+i*12}" style="font:8px Consolas,monospace;letter-spacing:.6px;fill:${T.ink};opacity:.7">${l}</text>`).join('')}<g style="fill:${T.ink}">${bars}</g></g>`;
 }
 // Doves: white, outlined; flip mirrors them, rot tilts them.
-export const dove=(x:number,y:number,s:number,T:CT,lw:number,flip=false,rot=0)=>`<path class="cl-dove" transform="translate(${f(x)} ${f(y)}) rotate(${f(rot)}) scale(${f(flip?-s:s)} ${f(s)}) translate(-50 -30)" d="${BIRD}" style="fill:${T.paper};stroke:${T.cobalt};stroke-width:${f(lw/s)};stroke-linejoin:round"/>`;
+export const dove=(x:number,y:number,s:number,T:CT,lw:number,flip=false,rot=0)=>`<path class="cl-dove" transform="translate(${f(x)} ${f(y)}) rotate(${f(rot)}) scale(${f(flip?-s:s)} ${f(s)}) translate(-50 -30)" d="${BFLY}" style="fill:${T.paper};stroke:${T.cobalt};stroke-width:${f(lw/s)};stroke-linejoin:round"/>`;
 export function flower(x:number,y:number,s:number,color:string,T:CT,lw:number,rot=0){
  const petals=[...Array(5)].map((_,i)=>`<ellipse cx="0" cy="-7" rx="4.2" ry="7" transform="rotate(${i*72})" style="fill:${color};stroke:${T.paper};stroke-width:${f(lw*.4/s)}"/>`).join('');
  return `<g transform="translate(${f(x)} ${f(y)}) rotate(${rot}) scale(${s})">${petals}<circle r="3" style="fill:${T.paper}"/></g>`;

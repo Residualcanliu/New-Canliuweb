@@ -1,7 +1,7 @@
 import { assetUrl } from './assets.ts';
 import { routeNodes, ROUTE_WIDTH, records, operators, type RouteNode } from './data.ts';
 import { rng } from './graphics.ts';
-import { ring, rule, poly, hexPts } from './sketch.ts';
+import { ring, rule, poly, TAU, type P } from './sketch.ts';
 import { sigil, area } from './sigil.ts';
 import { clamp, wrap } from './util.ts';
 import { personnelPlate, recordPlate, roleGlyph } from './plates.ts';
@@ -64,12 +64,19 @@ function lines(o:RouteOptions){
 }
 function nodeMarkup(n:RouteNode,i:number){
  const r=rng(i*13+3);
- const hex=`<svg class="hex" viewBox="-20 -20 40 40" aria-hidden="true"><path d="${poly(hexPts(0,0,17,r))}"/><path class="hex-echo" d="${poly(hexPts(1,.8,17.8,r))}"/></svg>`;
+ // Node marks: a hand-cut five-point star for projects, a book for notes, a ring for the next slot.
+ const star=(cx:number,cy:number,R:number,Ri:number)=>{const p:P[]=[...Array(10)].map((_,k)=>{const a=k/10*TAU-Math.PI/2;const rad=k%2?Ri:R;return [cx+Math.cos(a)*rad+(r()-.5)*.7,cy+Math.sin(a)*rad+(r()-.5)*.7] as P;});return poly(p);};
+ const ringMark='M0-17a17 17 0 1 1 0 34a17 17 0 1 1 0-34ZM0-7.5a7.5 7.5 0 1 0 0 15a7.5 7.5 0 1 0 0-15Z';
+ const hex=n.kind==='special'
+  ?`<svg class="hex hex-next" viewBox="-20 -20 40 40" aria-hidden="true"><path fill-rule="evenodd" d="${ringMark}"/><circle cx="0" cy="0" r="3.4"/></svg>`
+  :n.kind==='tutorial'
+  ?`<svg class="hex hex-book" viewBox="0 0 40 40" aria-hidden="true"><g transform="translate(7.5 8) scale(.84)"><path d="M4 7q6-3 11 1q5-4 11-1v16q-6-3-11 1q-5-4-11-1z"/><path d="M15 8v16"/></g></svg>`
+  :`<svg class="hex" viewBox="-20 -20 40 40" aria-hidden="true"><path d="${star(0,0,18.4,7.6)}"/><path class="hex-echo" d="${star(.9,.7,19.2,7.9)}"/></svg>`;
  // Lock-on ring and a title tip, shown on hover, focus and selection.
  const lock=`<svg class="rn-lock" viewBox="-40 -40 80 80" aria-hidden="true"><path d="${ring(0,0,30,r,1.2)}"/><path class="rn-lock-t" d="${rule(-40,0,-33,0,r,0,0)}${rule(33,0,40,0,r,0,0)}${rule(0,-40,0,-33,r,0,0)}${rule(0,33,0,40,r,0,0)}"/></svg>`;
  const op=n.operator!==undefined?operators[n.operator]:null;
- const badge=op?`<span class="rn-badge role" style="--c:${op.color}"><svg viewBox="-110 -110 220 220">${roleGlyph(op.role)}</svg></span>`:n.kind==='tutorial'?'<span class="rn-badge book"><svg viewBox="0 0 30 30"><path d="M4 7q6-3 11 1q5-4 11-1v16q-6-3-11 1q-5-4-11-1zM15 8v16"/></svg></span>':n.kind==='special'?'<span class="rn-badge halo"><svg viewBox="0 0 30 30"><ellipse cx="15" cy="8" rx="8" ry="2.4"/><path d="M15 12v14M9 18h12"/></svg></span>':'';
- return `<button class="route-node kind-${n.kind}" data-route="${i}" ${at(n.x,n.y,`--i:${i}`)} aria-label="${n.code} ${n.title}" data-cursor="${n.code}">${lock}${badge}${hex}<span class="rn-tip"><b>${n.title}</b><small>${n.en}</small></span><span class="rn-label"><small>${n.label??kindLabel[n.kind]}</small><b>${n.code}</b></span><em class="rn-done">${n.kind==='special'?'CONTINUE':'COMPLETED'}</em></button>`;
+ const badge=op?`<span class="rn-badge role" style="--c:${op.color}"><svg viewBox="-110 -110 220 220">${roleGlyph(op.role)}</svg></span>`:'';
+ return `<button class="route-node kind-${n.kind}" data-route="${i}" ${at(n.x,n.y,`--i:${i}`)} aria-label="${n.code} ${n.title}" data-cursor="${n.code}">${lock}${badge}${hex}<span class="rn-tip"><b>${n.title}</b><small>${n.en}</small></span><span class="rn-label"><small>${n.label??kindLabel[n.kind]}</small><b>${n.code}</b></span><em class="rn-done">${n.kind==='special'?'CONTINUE...':'COMPLETED'}</em></button>`;
 }
 const piece=([a,x,y,h,cls]:[string,number,number,number,string?],i:number)=>`<img class="rd ${cls??''}" src="${g(a)}" alt="" draggable="false" ${at(x,y,`--h:${h};--i:${i}`)}>`;
 

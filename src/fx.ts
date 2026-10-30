@@ -11,7 +11,7 @@ export class Reticle{
  constructor(root:HTMLElement){
   this.el.id='reticle';this.el.setAttribute('aria-hidden','true');
   this.box.className='r-box';this.box.innerHTML='<b></b><b></b><b></b><b></b>';this.label.className='r-label';
-  this.el.append(Object.assign(document.createElement('i'),{className:'r-dot'}),this.box,this.label);root.append(this.el);
+  this.el.append(this.box,this.label);root.append(this.el);
   root.classList.toggle('has-reticle',this.enabled);
   matchMedia('(hover:hover) and (pointer:fine)').addEventListener?.('change',e=>{this.enabled=e.matches;root.classList.toggle('has-reticle',e.matches);});
   root.addEventListener('pointermove',e=>this.move(e));root.addEventListener('pointerdown',()=>this.el.classList.add('press'));
