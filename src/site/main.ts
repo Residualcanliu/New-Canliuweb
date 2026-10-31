@@ -2,10 +2,10 @@ import '../style.css';
 import '../graphic.css';
 import './site.css';
 import { assetUrl, resolveMarkupAssets } from '../assets.ts';
-import { icon, ring, opArc, ARC_NODES } from '../ui.ts';
+import { icon, ring } from '../ui.ts';
 import { birdPlate, flock, rng } from '../graphics.ts';
 import { Reticle, NodeField, scramble, burst, ripple, morphGlyph, countTo, type Burst } from '../fx.ts';
-import { homePlate, personnelPlate } from '../plates.ts';
+import { homePlate } from '../plates.ts';
 import { RouteMap } from '../route.ts';
 import { Covenant } from '../covenant.ts';
 import { wrap } from '../util.ts';
@@ -30,11 +30,41 @@ const GLYPHS:Record<Page,{ch:string;x:number;y:number;size:number;depth:number;k
 const LETTERS=[...secret.word];
 const got=new Set<number>();   // 不落存储：每次刷新都重新找
 const motion=readStored<boolean>('site-motion',!matchMedia('(prefers-reduced-motion: reduce)').matches)!==false;
-let page:Page='home',arcTag=-1,scanTimer=0,enterTimer=0,active:HTMLElement|null=null,pendingParallax:{x:number;y:number}|null=null,released=new Set<number>();
+let page:Page='home',scanTimer=0,enterTimer=0,active:HTMLElement|null=null,pendingParallax:{x:number;y:number}|null=null,released=new Set<number>();
 const accentStyle=`--accent:${P.accent}`;
 const app=document.querySelector<HTMLDivElement>('#app')!;
-const nameLines=(seed:number)=>{const r=rng(seed);let j=0;return P.name.lines.map((line,i)=>`<span class="name-line line-${i}">${[...line].map(c=>`<span class="ch" style="--dx:${((r()-.5)*260).toFixed(0)}px;--dy:${((r()-.5)*140).toFixed(0)}px;--r:${((r()-.5)*40).toFixed(0)}deg;--sc:${(.6+r()*1.4).toFixed(2)};--j:${j++}">${c}</span>`).join('')}</span>`).join('');};
+const nameLines=(seed:number,text?:string)=>{const r=rng(seed);let j=0;return (text?[text]:P.name.lines).map((line,i)=>`<span class="name-line line-${i}">${[...line].map(c=>`<span class="ch" style="--dx:${((r()-.5)*260).toFixed(0)}px;--dy:${((r()-.5)*140).toFixed(0)}px;--r:${((r()-.5)*40).toFixed(0)}deg;--sc:${(.6+r()*1.4).toFixed(2)};--j:${j++}">${c}</span>`).join('')}</span>`).join('');};
 const skillBirds=flock(6,skills.length*3);
+
+/* ── 个人介绍右侧：一组「网页窗口」卡片 ────────────────────────────────────
+   首页已经有一张大圆盘，这一页不再重复；资料改成一叠错落的小窗：
+   轮廓 / 技能条 / 工具 / 年表 / 自述 / 联系。位置用百分比，改坐标即可挪。 */
+const ow=(x:number,y:number,w:number,h:number,i:number,code:string,meta:string,body:string)=>{const cjk=/[\u4e00-\u9fff]/.test(code);return `<article class="op-win" style="--x:${x};--y:${y};--w:${w};--h:${h};--i:${i}"><i class="ow-echo" aria-hidden="true"></i><div class="ow-card"><header><span class="ow-dot"></span><b${cjk?' class="ow-cn"':''}>${code}</b><em>${meta}</em></header><div class="ow-body">${body}</div></div></article>`;};
+/* 数据格先撤下（02 现在是撕纸状态）；要回滚就把上面 ow() 里的 body 换回 ow-stats */
+const owStats:[string,string,string][]=[
+ [String(works.filter(w=>w.kind!=='special').length).padStart(2,'0'),'作品','PROJECTS'],
+ ['01','软著','COPYRIGHT'],
+ [String(new Set(works.flatMap(w=>w.tags??[])).size),'技术标签','TAGS'],
+ ['02','竞赛奖项','AWARDS']
+];
+const owTags:{k:string;v:string[]}[]=[{k:'主要',v:['Python','Agent','Vibe Coding','大模型','机器学习','RAG']},{k:'开发',v:['ComfyUI','PyTorch','Next.js','FastAPI','Three.js','OpenCV','Ollama']},{k:'协作',v:['Claude','DeepSeek','Git','Vite','Figma']}];
+const owShots:{img:string;name:string;x:number;y:number;w:number;r:number}[]=[{img:'g-cs2',name:'CS2',x:5,y:3,w:45,r:-5},{img:'g-mc',name:'MINECRAFT',x:50,y:8,w:44,r:4},{img:'g-terraria',name:'TERRARIA',x:7,y:49,w:45,r:3},{img:'g-dmc5',name:'DMC 5',x:54,y:49,w:37,r:-4}];
+// 02：整扇窗被撕成两半再贴回去——两半各放一份完整卡片，用 clip-path 只露一边
+const tornXs=[50,48.1,51.9,48.4,51.6,48.1,51.9,48.4,51.6,48.1,51.9,48.4,51.6,48.1,51.9,48.4,51.6,48.1,51.9,48.4,50];
+const tornEdge=tornXs.map((x,i)=>`${x}% ${(i*5).toFixed(0)}%`).join(', ');
+const tornL=`polygon(0 0, ${tornEdge}, 0 100%)`;
+const tornR=`polygon(100% 0, ${tornEdge}, 100% 100%)`;
+const tornCard=(code:string,meta:string,body:string)=>`<div class="ow-card"><header><span class="ow-dot"></span><b>${code}</b><em>${meta}</em></header><div class="ow-body">${body}</div></div>`;
+const tornBody=`<span class="ow-torn-text l">规划</span><span class="ow-torn-text r">施工中…</span>`;
+const tornWin=`<article class="op-win op-win-torn" style="--x:53;--y:0;--w:45;--h:45;--i:1"><div class="ow-tornwrap"><div class="ow-half l" style="clip-path:${tornL}">${tornCard('DATA · 02','WIP',tornBody)}</div><div class="ow-half r" style="clip-path:${tornR}">${tornCard('DATA · 02','WIP',tornBody)}</div><i class="ow-tape t1"></i><i class="ow-tape t2"></i></div></article>`;
+
+const opWindows=[
+ ow(0,0,50,45,0,'PROFILE · 01','ID 2026',`<div class="ow-id"><img src="/assets/me-cat.webp" alt="GCH 的头像" width="400" height="400"><div class="ow-id-t"><b>GCH / 残留v枫楪</b><span>${P.roleEn}</span></div></div><i class="ow-rule"></i><dl class="ow-rows"><div><dt>驻地</dt><dd>${P.location}</dd></div><div><dt>当前状态</dt><dd>大四 / 寻找实习、工作中</dd></div><div><dt>ALIAS</dt><dd>RESIDUAL V MAP1E</dd></div><div><dt>MAIL</dt><dd class="ow-lower">${P.contact.email.replace('@','@<wbr>')}</dd></div></dl><i class="ow-barcode" aria-hidden="true"></i>`),
+ tornWin,
+ ow(2,50,44,44,2,'STACK · 03','TOOLS',`<div class="ow-tags">${owTags.map(g=>`<div class="ow-taggroup"><b>${g.k}</b><div class="ow-chips">${g.v.map(t=>`<span>${t}</span>`).join('')}</div></div>`).join('')}</div><p class="ow-note">目前常用 Claude + DeepSeek 组合。</p>`),
+ ow(49,50,49,44,3,'游玩游戏 · 04','PLAY',`<div class="ow-album">${owShots.map(s=>`<figure class="ow-photo" style="--px:${s.x};--py:${s.y};--pw:${s.w};--pr:${s.r}"><img src="/assets/game/${s.img}.webp" alt="${s.name}" loading="lazy"><b>${s.name}</b></figure>`).join('')}</div><span class="ow-veil" aria-hidden="true"></span><span class="ow-sticker"><img src="/assets/game/g-icons.webp" alt="常玩的游戏" loading="lazy"><i aria-hidden="true"></i></span>`)
+].join('');
+
 
 app.innerHTML=resolveMarkupAssets(`
 <main id="stage" class="mode-home site" style="${accentStyle}" aria-label="${P.name.cn} 的个人网站">
@@ -54,13 +84,11 @@ app.innerHTML=resolveMarkupAssets(`
  </section>
 
  <section id="operators" class="screen hidden" aria-label="个人介绍">
-  <div class="operator-grid"></div><div class="operator-orbit">${ring}<span class="ring-label">A / PROFILE</span></div>
-  <div class="op-arc">${opArc}${ARC_NODES.map((a,i)=>`<button class="arc-node" data-action="arc-tag" data-tag="${i}" style="left:${50+46*Math.cos(a*Math.PI/180)}%;top:${50+46*Math.sin(a*Math.PI/180)}%" aria-label="${P.facts[i].label}">＋</button>`).join('')}<div class="arc-tip" id="arc-tip"></div></div>
-  <div class="op-stack" aria-hidden="true"><img class="os star a" src="/assets/game/star-blue.webp" alt=""><img class="os blade" src="/assets/game/blade-d.webp" alt=""><img class="os hex" src="/assets/game/hex-set.webp" alt=""></div>
-  <div class="operator-art plate-host" id="operator-art">${personnelPlate({id:'me',name:P.name.cn,english:P.name.latin,lines:P.name.lines,role:P.plateRole,branch:P.role,stars:P.plateStars,color:P.accent,note:P.bio,quote:P.quote,tags:P.facts.map(f=>f.value),roleEn:P.roleEn,orbit:P.orbit},0)}</div>
-  <div class="op-glitch" aria-hidden="true"></div>
-  <div class="operator-copy"><div class="operator-kicker"><span>PROFILE</span><i></i><small>${P.location}</small></div><h2 id="op-name" class="graceb">${nameLines(5)}</h2><div class="op-subtitle"><span>${P.name.cn}</span><span>${'★'.repeat(Math.min(6,P.years))}</span><span class="op-latin">${P.name.latin.toUpperCase()}</span></div><div class="op-profession"><span>✧</span><div><strong>${P.role}</strong><small>${P.roleEn}</small></div><div class="profession-lines">╱╱╱<br>SINCE ${P.since}</div></div><p id="op-quote">“${P.quote}”</p><p class="site-bio">${P.bio}</p><div class="op-tools"><button data-action="works" class="line-button solid">看作品集 ${icon('arrow')}</button><button data-action="contact" class="line-button">联系</button>${P.resume!=='#'?`<a class="line-button" href="${P.resume}" target="_blank" rel="noreferrer">简历 ↗</a>`:''}</div></div>
-  <div class="op-footnote">PROFILE <span>点击右侧圆弧上的 ＋ 查看要点 · 指针悬停放大细节</span></div>
+  <div class="operator-grid"></div>
+  <div class="op-deco" aria-hidden="true"><span class="od-tag">PERSONNEL / 01</span><i class="od-cross a"></i><i class="od-cross b"></i><span class="od-side">PERSONNEL FILE — 01 / GCH</span></div>
+  <div class="op-windows">${opWindows}</div>
+  <div class="operator-copy"><div class="operator-kicker"><span>PROFILE</span><i></i><small>${P.location}</small></div><h2 id="op-name" class="op-name-cn">${nameLines(5,'个人介绍')}</h2><div class="op-profession"><span>✧</span><div><strong>${P.role}</strong><small>${P.roleEn}</small></div><div class="profession-lines">╱╱╱<br>SINCE ${P.since}</div></div><p id="op-quote">“${P.quote}”</p><p class="site-bio">${P.bio}</p><div class="op-tools"><button data-action="works" class="line-button solid">看作品集 ${icon('arrow')}</button><button data-action="contact" class="line-button">联系</button>${P.resume!=='#'?`<a class="line-button" href="${P.resume}" target="_blank" rel="noreferrer">简历 ↗</a>`:''}</div></div>
+  <div class="op-footnote">PROFILE <span>右侧是资料窗口 · 内容可在 profile.ts 里改</span></div>
  </section>
 
  <section id="records" class="screen hidden" aria-label="作品集"></section>
@@ -97,7 +125,7 @@ function tickClock(){
  const set=(el:SVGGElement|null,a:number)=>{if(el)el.setAttribute('transform',`rotate(${a.toFixed(3)} 520 470)`);};
  set(clockH,hr*30);set(clockM,min*6);set(clockS,sec*6);
  if(clockRing)clockRing.style.strokeDashoffset=String((1-(sec+d.getMilliseconds()/1000)/60)*1238);
- const hi=d.getHours()%12||12;clockNums.forEach(n=>n.classList.toggle('on',+n.dataset.hr===hi));
+ const hi=d.getHours()%12||12;clockNums.forEach(n=>n.classList.toggle('on',+(n.dataset.hr??0)===hi));
  if(clockTxt)clockTxt.textContent=`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(sec).padStart(2,'0')}  ·  ${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
 }
 if(clockH){tickClock();setInterval(tickClock,200);}
@@ -204,7 +232,7 @@ function setPage(next:Page,animate=true){
  field.active=next==='home'||next==='about';if(next==='home')field.set(7,[.46,.14,.96,.86],18,{x:.66,y:.44,r:.21});if(next==='about')field.set(19,[.5,.1,.96,.9],16,{x:.72,y:.46,r:.24});
  covenant.active=next==='contact';if(next==='contact')requestAnimationFrame(()=>covenant.resize());
  if(next==='works')route.enter();
- if(next==='about'){const n=$('#op-name');n.classList.remove('assemble');void n.offsetWidth;if(motion)n.classList.add('assemble');$('#operator-art').classList.remove('assemble');void $('#operator-art').offsetWidth;if(motion)$('#operator-art').classList.add('assemble');}
+ if(next==='about'){const n=$('#op-name');n.classList.remove('assemble');void n.offsetWidth;if(motion)n.classList.add('assemble');}
  if(next==='skills'){$('.atlas-stage').classList.remove('scanning');void $('.atlas-stage').offsetWidth;$('.atlas-stage').classList.add('scanning');}
  renderGlyphs();
  if(anim){incoming.classList.remove('entering');void incoming.offsetWidth;incoming.classList.add('entering');clearTimeout(enterTimer);enterTimer=window.setTimeout(()=>incoming.classList.remove('entering'),1100);
@@ -213,14 +241,13 @@ function setPage(next:Page,animate=true){
  const h=next==='home'?'':next==='works'?`#/works/${works[route.selected].id}`:`#/${next}`;if(location.hash!==h)history.replaceState(null,'',h||location.pathname);
 }
 function homeScan(on:boolean){clearTimeout(scanTimer);if(page!=='home')return;if(on)stage.classList.add('home-scan');else scanTimer=window.setTimeout(()=>stage.classList.remove('home-scan'),260);}
-function showFact(i:number){arcTag=arcTag===i?-1:i;document.querySelectorAll<HTMLElement>('.arc-node').forEach(b=>b.classList.toggle('active',(+b.dataset.tag!)===arcTag));const tip=$('#arc-tip');if(arcTag<0)return tip.classList.remove('visible');const f=P.facts[i];const node=document.querySelector<HTMLElement>(`.arc-node[data-tag="${i}"]`)!;tip.style.left=node.style.left;tip.style.top=node.style.top;tip.innerHTML=`<small>${String(i+1).padStart(2,'0')} / ${f.en}</small><b>${f.value}</b><span>${f.label}</span>`;tip.classList.remove('visible');void tip.offsetWidth;tip.classList.add('visible');}
 function skillOf(n:number){return skills[(n-1)%skills.length];}
 function showSkill(n:number){const s=skillOf(n);const el=$('#skill-name');if(el.dataset.text!==s.name)scramble(el,320,s.name);$('#skill-spec').innerHTML=`${s.en}<br><span style="opacity:.55">留言 No.${String(n).padStart(2,'0')}</span>`;document.querySelectorAll<HTMLElement>('[data-skill]').forEach(b=>b.classList.toggle('active',skills[+b.dataset.skill!]===s));}
 
 const actions:Record<string,(el:HTMLElement)=>void>={
  home:()=>setPage('home'),about:()=>setPage('about'),glyph:el=>collect(el),secret:()=>openSecret(),works:()=>setPage('works'),skills:()=>setPage('skills'),contact:()=>setPage('contact'),
  fullscreen:()=>{void (document.fullscreenElement?document.exitFullscreen():stage.requestFullscreen()).catch(()=>toast('可使用 F11 进入全屏'));},
- 'arc-tag':el=>showFact(+el.dataset.tag!),'work-prev':()=>route.step(-1),'work-next':()=>route.step(1),'route-goto':el=>{const i=works.findIndex(w=>w.id===el.dataset.id);if(i>=0)route.select(i);},'route-seq':el=>route.seekStage(+el.dataset.seq!),'route-pins-clear':()=>route.clearPins(),
+ 'work-prev':()=>route.step(-1),'work-next':()=>route.step(1),'route-goto':el=>{const i=works.findIndex(w=>w.id===el.dataset.id);if(i>=0)route.select(i);},'route-seq':el=>route.seekStage(+el.dataset.seq!),'route-pins-clear':()=>route.clearPins(),
  recall:()=>{document.querySelectorAll('.p0 .flown').forEach(g=>{g.classList.remove('flown');g.classList.add('returning');});released.clear();countTo($('#skill-count'),0);},
  part:()=>{covenant.reset();$('#contact-card').classList.remove('visible');},reveal:()=>reveal(),
  'copy-mail':()=>{void navigator.clipboard?.writeText(P.contact.email).then(()=>toast('邮箱已复制'),()=>toast(P.contact.email));}
@@ -273,8 +300,9 @@ function openSecret(){
   document.body.appendChild(secretEl);
   secretEl.addEventListener('click',e=>{
    const el=e.target as HTMLElement;
-   if(el===secretEl||el.closest('.secret-close'))secretEl.classList.remove('on');
+   if(el===secretEl||el.closest('.secret-close'))secretEl!.classList.remove('on');
   });
  }
  secretEl.classList.add('on');
 }
+

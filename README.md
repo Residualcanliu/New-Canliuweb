@@ -137,6 +137,26 @@ npm run build      # 产出 dist/
 
 个人图版外圈那行旋转文字来自 `profile.orbit`（`plates.ts` 里不再拼死 LATERANO / RHODES ISLAND 那套）。
 
+## 个人介绍页：资料窗口
+
+这一页原来右侧是一整张同心圆图版（`personnelPlate`），和首页那张重复，已经撤掉；改成四扇大一点的「网页窗口」，把资料摊开。
+
+- 结构在 `src/site/main.ts` 的 `opWindows`：`ow(x, y, w, h, i, 编码, 右上角小注, 内容)`，`x/y/w/h` 是相对右侧容器的百分比，`i` 只用来排入场动画的先后。
+- 四扇：`PROFILE` 身份卡（头像／驻地／当前状态／别名／邮箱 + 条码）、`DATA` 撕纸施工牌（两半撕开又贴回去的纸，`规划` / `施工中…`，两条胶带；原来的 2×2 数字格保留在 `owStats` 里没删，想换回来改一句 body 即可）、`STACK` 技术标签（主要／开发／协作三组，取自作品集的 tag）、`游玩游戏` 游戏相册（四张斜着的白框照片，默认盖一层蒙版，鼠标移进这扇窗才揭开）。
+- 数据都在 `main.ts` 的三个数组里：`owStats`（数字 / 中文标签 / 英文标签，目前未使用）、`owTags`（分组与条目）、`owShots`（图片名/标题/位置/宽度/角度）。`owStats` 里作品数和标签数是实时从 `works` 统计的，加一个项目会自己变；「01 软著」是写死的。
+- 相册的蒙版 `.ow-veil` 平时盖住照片（毛玻璃 + 斜线纹，面上不放字），`.op-win:hover` 时淡出；`@media(hover:none)` 下直接不显示，触屏不会有东西挡着。
+- 相册图在 `public/assets/game/g-cs2 / g-mc / g-terraria / g-dmc5 .webp`。前三张 640×360（居中裁 16:9）；鬼泣五那张是 4:3（600×450，只裁两侧，保住底部的字幕）。换照片按同样尺寸加文件、改 `owShots` 即可。
+- 相册右下角那枚「游戏图标」贴纸是 `public/assets/game/g-icons.webp`：`.ow-sticker` 宽 17%，定位 `right:-10px;bottom:0` 再用 `translate:0 50%` 往下推半个身位，所以正好骑在卡片下边框上（露一半在面板外）；上面盖一条 `.ow-sticker i` 半透明「胶带」（`backdrop-filter:blur(1.6px)` 让下面的图标透出来发虚，再叠 1px 虚线边和投影），悬停时整枚转回 1°。
+- 每扇窗 = 白底 + 1px 钴蓝边 + 一行标签条（蓝方块 + 编码 + 右注）+ 一层向右下偏移 7px 的套印副本 `.ow-echo`。**不做旋转**：转过 1° 以上，中文小字会发虚，这是「字看着糊」的真正原因。悬停只上提 3px。
+- 高度是写死的 `--h`（45% / 44%），`.ow-card` 用 flex 撑满，`DATA` 的条与 `LOG` 的行用 `space-between` 均分，所以放大后不会出现「上半截内容、下半截空白」。
+- 字号全部 `clamp()` 跟视口走（正文 `clamp(13px,.86vw,16.5px)`、标签 `clamp(7.5px,.54vw,9.5px)`）。窗口宽度是百分比，字不跟着放大就会显得框大字小。
+- 左栏大标题是中文「个人介绍」（`nameLines(5,'个人介绍')`，样式在 `#op-name.op-name-cn`），下面原来那行 `GCH ★★★★★` 已经删掉。
+- `PROFILE` 面板顶部是头像 + 名字：`public/assets/me-cat.webp`（400×400，原图整张缩放、不裁切，`object-fit:contain`）+ `GCH / 残留v枫楪`。换头像只换这个文件即可，方图最稳。
+- 引言与自述是数据，改 `src/site/profile.ts` 的 `quote` / `bio`，这一页和别处都不会串。
+- 只留极少装饰：左上角黑色小标 `PERSONNEL / 01`（贴在 `PROFILE` 上方，像文件夹标签）、两枚套准十字 `.od-cross`、右边一条竖排小字 `.od-side`。页级 `.crosshair-two` 在这一页关掉了，否则会落在窗口里像个 ＋ 按钮。
+- 背景那层连线（`#node-field`，z-index 3）原本盖在窗口上，横穿卡片；`.mode-operators #node-field{z-index:0}` 压回窗口后面。
+- ≤760px 直接隐藏这组窗（左栏的名字、自述和按钮仍在），和 `.op-footnote` 的处理一致。
+
 ## 本轮删掉的东西
 
 - 首页被圈出的三个堆叠插图：`.hs.spire`（顶部光柱）、`.hs.ruler`（左侧刻度条）、`.hs.column`（右侧文字栏）。
