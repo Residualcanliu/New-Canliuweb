@@ -47,8 +47,7 @@ export function birdPlate(interactive=false,id='bird',count=46){
  <path d="${rule(660,90,660,640,r,12,3)}"/>${E(r,660,654,14,14)}<circle cx="470" cy="172" r="4"/><path d="${rule(470,176,470,610,r,10,2.4)}"/><path class="bp-fan" d="${fan}"/><path d="${rule(900,350,1080,350,r,8,1.2)}M920 344v12M960 344v12M1000 344v12"/>`,
  `<path transform="rotate(28 560 320)" d="${brush(arcPts(560,320,210,-.7,1.2,r,1.4,2),12,.45)}"/><path d="${brush(arcPts(1180,340,190,3.5,5.3,r,1.2),9,.5)}"/><path d="${brush(arcPts(300,300,160,1.9,3.3,r,1,2.06),7,.5)}" transform="rotate(-8 300 300)"/>`)}
  ${cross(405,122)}${cross(1550,212,8)}${cross(1550,560,8)}
- <g class="bp-flock">${birds.map(b=>birdMarkup(b,interactive)).join('')}</g>
- <text class="bp-title" x="300" y="368">留言何以飞翔</text></svg>`;
+ <g class="bp-flock">${birds.map(b=>birdMarkup(b,interactive)).join('')}</g></svg>`;
 }
 
 // PV 00:24–00:27 — the robed figure on blueprint paper, wings as rotatable feather fans with blue stepped echoes.

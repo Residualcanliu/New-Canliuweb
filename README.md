@@ -43,14 +43,29 @@ npm run build      # 产出 dist/
 | 干员人员图版 | 个人介绍页的单一图版 |
 | 行迹地图上的关卡节点 | 作品集里的项目节点 |
 | 图谱：羽兽携带能力 | 留言：羽兽携带一句话 |
-| 圣堂：三维建筑拆解 | 功能：双手相触展开工具与联系方式 |
+| 圣堂：三维建筑拆解 | 功能：React 组件实验台 + 个人学习笔记 |
 | 含 BGM | 不含 |
 
 ## 还没做的
 
 1. 作品预览图仍是占位（`public/assets/game/*.webp`）。
 2. 留言没有后端：不落库、不刷新保留，纯视觉演示。要真做需要接一个表单接口。
-3. 「功能」页目前是"联系方式 + 一行工具说明"，还不是真正的工具页（比如导出卡片、检索的独立入口）。
+3. 「功能」页的学习笔记目前是本地数据，没有搜索后端；题量再多可以按章节拆文件、懒加载。
+
+## 功能页：React 实验台 + 个人学习笔记
+
+这一页真的装了 React 19（`@vitejs/plugin-react` 5.x，配合 Vite 7），但不影响首屏：只是一个挂在 `#lab-root` 上的岛，进页时才 `import('../lab/mount.tsx')`。
+
+| 文件 | 管什么 |
+|---|---|
+| `src/lab/Lab.tsx` | 页面布局 + 终端组件（useState / useRef / useEffect，带快捷命令 chips），卡片壳统一标 `REACT` 角标和 hook 标签 |
+| `src/lab/knowledge.ts` | 笔记数据，6 章 44 题（全栈 / AI Agent / 计算机基础 / React / 算法 / 工程实践）。往 `CHAPTERS` 里加 `{tag, q, a}`，题数和分类标签会自动更新 |
+| `src/lab/lab.css` | 只服务这一页；配色全部复用全局 `--cobalt / --ink / --mono / --cn-serif` |
+| `src/lab/mount.tsx` | `createRoot` 挂载入口 |
+
+加一个新的实验组件：在 `Lab.tsx` 写一个函数组件，用 `<Card code="REACT · 03" title="..." hooks={['useState']}>` 包住，再放进 `.lab-left` 就行。卡头的 `REACT` 角标和 hook 标签就是「标注」，不用另外写说明。
+
+版式上左列是实验台、右列是手风琴笔记：右列 `overflow:auto` 自己滚，点标题用 `grid-template-rows: 0fr → 1fr` 展开（不用算高度，内容再长也能撑开）。窄屏（<1150px）收起左列只留笔记；矮屏（<780px）压缩页头与面板间距。
 
 ## 首页圆盘 = 实时时钟
 

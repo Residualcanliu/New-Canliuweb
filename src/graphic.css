@@ -39,7 +39,8 @@
 .glyph.key{color:var(--cobalt);pointer-events:auto;cursor:pointer;opacity:1}
 .glyph.key:before{content:"";position:absolute;inset:-14% -30%;border:1px dashed currentColor;border-radius:50%;opacity:.55;animation:spin 14s linear infinite}
 .glyph.key:after{content:"+";position:absolute;right:-.5em;top:-.35em;font:11px var(--mono)}
-.glyph.key:hover,.glyph.key:focus-visible{rotate:y 180deg;outline:0}
+.glyph.key:before,.glyph.key:after{pointer-events:none}
+.glyph.key:hover,.glyph.key:focus-visible{color:#17308f;outline:0;text-shadow:0 0 22px #2b4bd85c}
 .glyph-ghost{position:fixed;z-index:320;margin:0;font-family:var(--serif);line-height:.9;color:var(--cobalt);pointer-events:none;transform-origin:0 0}
 
 @keyframes glyph-in{from{opacity:0;filter:blur(8px);translate:0 -24px;letter-spacing:.3em}}

@@ -7,7 +7,6 @@ import { birdPlate, flock, rng } from '../graphics.ts';
 import { Reticle, NodeField, scramble, burst, ripple, morphGlyph, countTo, type Burst } from '../fx.ts';
 import { homePlate } from '../plates.ts';
 import { RouteMap } from '../route.ts';
-import { Covenant } from '../covenant.ts';
 import { wrap } from '../util.ts';
 import { readStored, saveStored } from '../storage.ts';
 import type { RouteNode } from '../data.ts';
@@ -59,7 +58,7 @@ const tornBody=`<span class="ow-torn-text l">规划</span><span class="ow-torn-t
 const tornWin=`<article class="op-win op-win-torn" style="--x:53;--y:0;--w:45;--h:45;--i:1"><div class="ow-tornwrap"><div class="ow-half l" style="clip-path:${tornL}">${tornCard('DATA · 02','WIP',tornBody)}</div><div class="ow-half r" style="clip-path:${tornR}">${tornCard('DATA · 02','WIP',tornBody)}</div><i class="ow-tape t1"></i><i class="ow-tape t2"></i></div></article>`;
 
 const opWindows=[
- ow(0,0,50,45,0,'PROFILE · 01','ID 2026',`<div class="ow-id"><img src="/assets/me-cat.webp" alt="GCH 的头像" width="400" height="400"><div class="ow-id-t"><b>GCH / 残留v枫楪</b><span>${P.roleEn}</span></div></div><i class="ow-rule"></i><dl class="ow-rows"><div><dt>驻地</dt><dd>${P.location}</dd></div><div><dt>当前状态</dt><dd>大四 / 寻找实习、工作中</dd></div><div><dt>ALIAS</dt><dd>RESIDUAL V MAP1E</dd></div><div><dt>MAIL</dt><dd class="ow-lower">${P.contact.email.replace('@','@<wbr>')}</dd></div></dl><i class="ow-barcode" aria-hidden="true"></i>`),
+ ow(0,0,50,45,0,'PROFILE · 01','ID 2026',`<div class="ow-id"><img src="/assets/me-cat.webp" alt="GCH 的头像" width="400" height="400"><div class="ow-id-t"><b>GCH / 残留v枫楪</b><span>${P.roleEn}</span></div></div><i class="ow-rule"></i><dl class="ow-rows"><div><dt>驻地</dt><dd>${P.location}</dd></div><div><dt>当前状态</dt><dd>大四 / 寻找实习、工作中</dd></div><div><dt>ALIAS</dt><dd>RESIDUAL V MAP1E</dd></div><div><dt>MAIL</dt><dd class="ow-lower"><button type="button" class="ow-copy" data-action="copy-mail" title="点击复制邮箱" aria-label="复制邮箱 ${P.contact.email}">${P.contact.email.replace('@','@<wbr>')}<i aria-hidden="true"></i></button></dd></div></dl><i class="ow-barcode" aria-hidden="true"></i>`),
  tornWin,
  ow(2,50,44,44,2,'STACK · 03','TOOLS',`<div class="ow-tags">${owTags.map(g=>`<div class="ow-taggroup"><b>${g.k}</b><div class="ow-chips">${g.v.map(t=>`<span>${t}</span>`).join('')}</div></div>`).join('')}</div><p class="ow-note">目前常用 Claude + DeepSeek 组合。</p>`),
  ow(49,50,49,44,3,'游玩游戏 · 04','PLAY',`<div class="ow-album">${owShots.map(s=>`<figure class="ow-photo" style="--px:${s.x};--py:${s.y};--pw:${s.w};--pr:${s.r}"><img src="/assets/game/${s.img}.webp" alt="${s.name}" loading="lazy"><b>${s.name}</b></figure>`).join('')}</div><span class="ow-veil" aria-hidden="true"></span><span class="ow-sticker"><img src="/assets/game/g-icons.webp" alt="常玩的游戏" loading="lazy"><i aria-hidden="true"></i></span>`)
@@ -87,23 +86,20 @@ app.innerHTML=resolveMarkupAssets(`
   <div class="operator-grid"></div>
   <div class="op-deco" aria-hidden="true"><span class="od-tag">PERSONNEL / 01</span><i class="od-cross a"></i><i class="od-cross b"></i><span class="od-side">PERSONNEL FILE — 01 / GCH</span></div>
   <div class="op-windows">${opWindows}</div>
-  <div class="operator-copy"><div class="operator-kicker"><span>PROFILE</span><i></i><small>${P.location}</small></div><h2 id="op-name" class="op-name-cn">${nameLines(5,'个人介绍')}</h2><div class="op-profession"><span>✧</span><div><strong>${P.role}</strong><small>${P.roleEn}</small></div><div class="profession-lines">╱╱╱<br>SINCE ${P.since}</div></div><p id="op-quote">“${P.quote}”</p><p class="site-bio">${P.bio}</p><div class="op-tools"><button data-action="works" class="line-button solid">看作品集 ${icon('arrow')}</button><button data-action="contact" class="line-button">联系</button>${P.resume!=='#'?`<a class="line-button" href="${P.resume}" target="_blank" rel="noreferrer">简历 ↗</a>`:''}</div></div>
-  <div class="op-footnote">PROFILE <span>右侧是资料窗口 · 内容可在 profile.ts 里改</span></div>
+  <div class="operator-copy"><div class="operator-kicker"><span>PROFILE</span><i></i><small>${P.location}</small></div><h2 id="op-name" class="op-name-cn">${nameLines(5,'个人介绍')}</h2><p id="op-quote">“${P.quote}”</p><p class="site-bio">${P.bio}</p><div class="op-tools"><button data-action="works" class="line-button solid">看作品集 ${icon('arrow')}</button><button data-action="contact" class="line-button">联系</button>${P.resume!=='#'?`<a class="line-button" href="${P.resume}" target="_blank" rel="noreferrer">简历 ↗</a>`:''}</div></div>
  </section>
 
  <section id="records" class="screen hidden" aria-label="作品集"></section>
 
  <section id="atlas" class="screen hidden" aria-label="留言"><div class="atlas-stage" data-plate="0" data-cursor="留言"><div class="atlas-plate p0">${birdPlate(true,'skill',skillBirds.length)}</div><i class="atlas-scan"></i></div>
-  <div class="atlas-head"><span class="eyebrow" data-scramble>GUESTBOOK / ${skills.length} NOTES</span><h2>留言</h2><p>每一只蝴蝶带一句话 · 悬停读，点击放飞</p></div>
+  <div class="atlas-head"><span class="eyebrow" data-scramble>GUESTBOOK / ${skills.length} NOTES</span><h2>留言</h2></div>
   <div class="atlas-readout"><small>NOTE</small><b id="skill-name">--</b><div id="skill-spec">将指针移到蝴蝶上<br>读一条留言</div></div>
   <div class="atlas-tools"><div class="tools-0" style="display:flex"><button class="line-button" data-action="recall">召回 RECALL</button><span class="atlas-count">已放飞 <b id="skill-count">00</b> / ${skillBirds.length}</span></div></div>
   <div class="skill-list">${skills.map((s,i)=>`<button data-skill="${i}"><small>${String(i+1).padStart(2,'0')}</small>${s.en}<i style="--l:${s.level/5}"></i></button>`).join('')}</div>
  </section>
 
- <section id="contact" class="screen hidden" aria-label="功能"><div class="cv-root"></div>
-  <div class="atlas-head"><span class="eyebrow" data-scramble>TOOLS / CONTACT</span><h2>功能</h2><p>让指尖相触 · 打开工具与联系方式</p></div>
-  <div class="contact-card" id="contact-card" aria-live="polite"><small>TOOLS ／ CONTACT</small><h3>${P.name.cn} <em>${P.name.latin}</em></h3><button class="contact-mail" data-action="copy-mail">${P.contact.email}<span>复制</span></button><div class="contact-links">${P.contact.links.map(l=>`<a href="${l.url}" target="_blank" rel="noreferrer">${l.label} ↗</a>`).join('')}</div><p>${P.location} · 回复通常在两天内</p><p style="margin-top:10px;opacity:.6">工具 ／ 图纸模式 B · 全屏 F · 检索 / · 导出卡片在作品详情内</p></div>
-  <div class="atlas-tools"><div class="tools-0" style="display:flex"><span class="atlas-count">指尖距离 <b id="gap">1.00</b></span><button class="line-button" data-action="part">分开 PART</button><button class="line-button" data-action="reveal">直接显示</button></div></div>
+ <section id="contact" class="screen hidden" aria-label="功能"><div class="lab-root" id="lab-root"></div>
+  <div class="atlas-head"><span class="eyebrow" data-scramble>LAB / NOTES</span><h2>功能</h2></div>
  </section>
 
  <footer class="bottom-bar"><span class="edition">PORTFOLIO <i>${String(new Date().getFullYear()).slice(2)}</i></span><nav aria-label="主导航">${PAGES.map(([m,cn,en],i)=>`<button data-action="${m}" data-nav="${m}" data-cursor="${en}"><small>0${i}</small><span data-scramble>${cn}</span></button>`).join('')}</nav></footer>
@@ -174,10 +170,14 @@ const route=new RouteMap($('#records'),visited,()=>new Set(),id=>{saveStored('si
  portals:''});
 route.seq.reduced=!motion;
 
-// Contact: the covenant hands; touching fingertips reveals the card.
-const covenant=new Covenant($('#contact .cv-root'),true);
-covenant.onContact=()=>{reveal();};
-function reveal(){const c=$('#contact-card');if(!c.classList.contains('visible')){c.classList.add('visible');toast('指尖相触 · 联系方式已展开');}}
+// Contact: 功能页是一个 React 实验台 + 八股手册，进页时再挂载（见 mountLab）。
+let labMounted=false;
+function mountLab(){
+ if(labMounted)return;
+ const el=$('#lab-root');if(!el)return;
+ labMounted=true;
+ import('../lab/mount.tsx').then(m=>m.mountLab(el)).catch(()=>{labMounted=false;toast('组件加载失败 · 刷新再试');});
+}
 
 function toast(m:string){$('#toast').textContent=m;$('#toast').classList.add('visible');clearTimeout(toastTimer);toastTimer=window.setTimeout(()=>$('#toast').classList.remove('visible'),2400);}let toastTimer=0;
 function renderGlyphs(){
@@ -230,7 +230,7 @@ function setPage(next:Page,animate=true){
  document.querySelectorAll<HTMLElement>('[data-nav]').forEach(b=>{b.classList.toggle('selected',b.dataset.nav===next);b.setAttribute('aria-current',b.dataset.nav===next?'page':'false');});
  $('#mode-caption').textContent=`${P.name.cn} · ${PAGES.find(p=>p[0]===next)![1]}`;
  field.active=next==='home'||next==='about';if(next==='home')field.set(7,[.46,.14,.96,.86],18,{x:.66,y:.44,r:.21});if(next==='about')field.set(19,[.5,.1,.96,.9],16,{x:.72,y:.46,r:.24});
- covenant.active=next==='contact';if(next==='contact')requestAnimationFrame(()=>covenant.resize());
+ if(next==='contact')requestAnimationFrame(mountLab);
  if(next==='works')route.enter();
  if(next==='about'){const n=$('#op-name');n.classList.remove('assemble');void n.offsetWidth;if(motion)n.classList.add('assemble');}
  if(next==='skills'){$('.atlas-stage').classList.remove('scanning');void $('.atlas-stage').offsetWidth;$('.atlas-stage').classList.add('scanning');}
@@ -249,7 +249,6 @@ const actions:Record<string,(el:HTMLElement)=>void>={
  fullscreen:()=>{void (document.fullscreenElement?document.exitFullscreen():stage.requestFullscreen()).catch(()=>toast('可使用 F11 进入全屏'));},
  'work-prev':()=>route.step(-1),'work-next':()=>route.step(1),'route-goto':el=>{const i=works.findIndex(w=>w.id===el.dataset.id);if(i>=0)route.select(i);},'route-seq':el=>route.seekStage(+el.dataset.seq!),'route-pins-clear':()=>route.clearPins(),
  recall:()=>{document.querySelectorAll('.p0 .flown').forEach(g=>{g.classList.remove('flown');g.classList.add('returning');});released.clear();countTo($('#skill-count'),0);},
- part:()=>{covenant.reset();$('#contact-card').classList.remove('visible');},reveal:()=>reveal(),
  'copy-mail':()=>{void navigator.clipboard?.writeText(P.contact.email).then(()=>toast('邮箱已复制'),()=>toast(P.contact.email));}
 };
 document.addEventListener('click',e=>{
@@ -281,7 +280,6 @@ let last=performance.now();
 function frame(now:number){const dt=Math.min((now-last)/1000,.1);last=now;if(!document.hidden){
  if(pendingParallax){stage.style.setProperty('--mx',pendingParallax.x.toFixed(3));stage.style.setProperty('--my',pendingParallax.y.toFixed(3));pendingParallax=null;}
  reticle.frame(dt);field.frame(motion?dt:0);if(page==='works')route.frame(dt);
- if(page==='contact'){covenant.frame(dt);const g=covenant.gap.toFixed(2);const el=$('#gap');if(el.textContent!==g)el.textContent=g;}
 }requestAnimationFrame(frame);}
 requestAnimationFrame(frame);
 
