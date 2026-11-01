@@ -20,6 +20,10 @@ const safeEq = (a: string, b: string) => {
 
 const ipOf = (req: FastifyRequest) => req.ip.replace(/^::ffff:/, '');
 
+/* 蝴蝶大小：和原本 flock() 的 0.9–2.2 同一量级，但把下限抬到 1.15，避免小得像标点 */
+const SCALE_MIN = 1.15;
+const SCALE_MAX = 2.2;
+
 /* 蝴蝶落点：避开左下 NOTE 面板 / 召回按钮、右上留言清单，否则会挡住内容。坐标是图版百分比。 */
 const BLOCKED: [number, number, number, number][] = [
   [0, 33, 54, 100],   // 左下：NOTE 读数面板 + RECALL 工具条
@@ -53,18 +57,24 @@ function assignPosition(db: DB, id: number): void {
       Number(b.x.toFixed(2)),
       Number(b.y.toFixed(2)),
       Number((Math.random() * 30 - 15).toFixed(1)),
-      Number((0.85 + Math.random() * 0.4).toFixed(2)),
+      Number((SCALE_MIN + Math.random() * (SCALE_MAX - SCALE_MIN)).toFixed(2)),
       id
     );
 }
 
 /* 启动时把落在遮挡区里的旧坐标重新分配一次（幂等）。 */
 export function repositionApproved(db: DB): number {
-  const rows = db.prepare("SELECT id, x, y FROM messages WHERE status='approved'").all() as
-    { id: number; x: number | null; y: number | null }[];
+  const rows = db.prepare("SELECT id, x, y, scale FROM messages WHERE status='approved'").all() as
+    { id: number; x: number | null; y: number | null; scale: number | null }[];
+  const setScale = db.prepare('UPDATE messages SET scale = ? WHERE id = ?');
   let moved = 0;
   for (const r of rows) {
-    if (r.x == null || r.y == null || blocked(r.x, r.y)) { assignPosition(db, r.id); moved++; }
+    if (r.x == null || r.y == null || blocked(r.x, r.y)) { assignPosition(db, r.id); moved++; continue; }
+    /* 早期的 0.85–1.25 偏小，统一拉回到新的 1.15–2.2 */
+    if (r.scale == null || r.scale < SCALE_MIN || r.scale > SCALE_MAX) {
+      setScale.run(Number((SCALE_MIN + Math.random() * (SCALE_MAX - SCALE_MIN)).toFixed(2)), r.id);
+      moved++;
+    }
   }
   return moved;
 }
