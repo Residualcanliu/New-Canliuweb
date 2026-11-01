@@ -129,7 +129,7 @@ app.innerHTML=resolveMarkupAssets(`
   <div class="atlas-head"><span class="eyebrow" data-scramble>LAB / NOTES</span><h2>功能</h2></div>
  </section>
 
- <footer class="bottom-bar"><span class="edition">PORTFOLIO <i>${String(new Date().getFullYear()).slice(2)}</i></span><nav aria-label="主导航">${PAGES.map(([m,cn,en],i)=>`<button data-action="${m}" data-nav="${m}" data-cursor="${en}"><small>0${i}</small><span data-scramble>${cn}</span></button>`).join('')}</nav></footer>
+ <footer class="bottom-bar"><span class="edition">69 20 6c 6f 76 65 20 79 6f 75</span><nav aria-label="主导航">${PAGES.map(([m,cn,en],i)=>`<button data-action="${m}" data-nav="${m}" data-cursor="${en}"><small>0${i}</small><span data-scramble>${cn}</span></button>`).join('')}</nav></footer>
  <div id="transition-fx" aria-hidden="true"></div><div id="bloom" aria-hidden="true"></div><div id="ripples" aria-hidden="true"></div><div id="toast" role="status" aria-live="polite"></div>
 </main>`);
 
@@ -293,7 +293,7 @@ function renderGuestbook(){
  head.dataset.text=head.textContent;
  $('#skill-total').textContent=String(total).padStart(2,'0');
  $('#note-count').textContent=String(n).padStart(2,'0');
- const panel=$('#note-panel');panel.classList.toggle('is-empty',n===0);if(!n)panel.dataset.open='0';
+ const panel=$('#note-panel');panel.classList.toggle('is-empty',n===0);
  countTo($('#skill-count'),0);
  released.clear();
  const name=$('#skill-name');
@@ -303,7 +303,7 @@ function renderGuestbook(){
   :n?'将指针移到蝴蝶上<br>读一条留言'
   :'留言板还空着<br>去后台放几条进来';
  $('#skill-list').innerHTML=n
-  ? guestNotes.map((s,i)=>`<button data-skill="${i}"><small>${String(i+1).padStart(2,'0')}</small>${esc(s.en)}<i style="--l:${s.level/5}"></i></button>`).join('')
+  ? guestNotes.map((s,i)=>`<button data-skill="${i}"><small>${String(i+1).padStart(2,'0')}</small>${esc(s.en)}</button>`).join('')
   : '';
 }
 

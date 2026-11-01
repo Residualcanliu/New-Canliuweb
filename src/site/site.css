@@ -17,6 +17,19 @@
 .rp-tags span{font:9px var(--mono);letter-spacing:1px;padding:3px 8px;border:1px solid var(--line);color:var(--muted)}
 
 /* Skills */
+/* 上下对称：顶部分隔线与底部导航的横线，到各自边缘的距离都是 --edge */
+.site{--edge:78px;--screen-top:105px;--screen-bottom:90px}
+.site .topbar{align-items:flex-start;padding-top:38px;border-bottom:0}
+.site .topbar:after{content:"";position:absolute;left:0;right:0;top:var(--edge);height:1px;background:var(--line);pointer-events:none}
+.site .bottom-bar{height:var(--edge)}
+@media(min-width:1800px){.site{--edge:92px;--screen-top:120px;--screen-bottom:100px}}
+@media(max-height:860px) and (min-width:901px){.site{--edge:64px;--screen-top:78px;--screen-bottom:67px}.site .topbar{padding-top:26px}}
+@media(max-width:700px){.site{--edge:64px;--screen-top:77px;--screen-bottom:76px}.site .topbar{padding-top:24px}}
+@media(max-height:560px) and (orientation:landscape){.site{--edge:52px;--screen-top:58px;--screen-bottom:54px}.site .topbar{padding-top:16px}}
+
+/* 留言板：把图版底色往上下各扩一截，盖掉分隔线与内容区之间的浅色带 */
+.site #atlas{box-shadow:0 calc(var(--edge) - var(--screen-top)) 0 #bcc6c8,0 calc(var(--screen-bottom) - var(--edge)) 0 #bcc6c8}
+
 .note-panel{position:absolute;right:var(--pad);top:16%;z-index:6;width:236px;max-width:34vw}
 .note-panel.is-empty{display:none}
 .note-toggle{display:flex;align-items:center;gap:8px;width:100%;padding:7px 10px;background:#f4f5f3f2;border:1px solid #3a5bc244;font:10px var(--mono);letter-spacing:1.6px;color:#2b3438;cursor:pointer;transition:border-color .25s,color .25s}
@@ -49,9 +62,8 @@
 .compose-send{align-self:flex-end;padding:6px 16px;border:1px solid var(--cobalt);background:var(--cobalt);color:#fff;font:11px var(--cn-serif);letter-spacing:2px;cursor:pointer;transition:opacity .2s}
 .compose-send:disabled{opacity:.45;cursor:default}
 .compose-hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none}
-.skill-list button{display:grid;grid-template-columns:26px 1fr 54px;align-items:center;gap:6px;padding:6px 12px;text-align:left;font:12px var(--cn-serif);letter-spacing:1px}
+.skill-list button{display:grid;grid-template-columns:26px 1fr;align-items:center;gap:6px;padding:6px 12px;text-align:left;font:12px var(--cn-serif);letter-spacing:1px}
 .skill-list small{font:8px var(--mono);color:var(--cobalt)}
-.skill-list i{display:block;height:3px;background:linear-gradient(90deg,var(--cobalt) calc(var(--l)*100%),#22282b1f calc(var(--l)*100%))}
 .skill-list button:hover,.skill-list button.active{background:#22282b;color:#f3f4f2}.skill-list button.active small{color:#9fb3ff}
 .skill-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:16%;gap:10px;text-align:center;pointer-events:none}
 .skill-empty b{font:400 clamp(17px,1.25vw,23px)/1.5 var(--cn-serif);letter-spacing:7px;color:#3a5bc2;opacity:.9}
