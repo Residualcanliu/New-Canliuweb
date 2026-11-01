@@ -12,7 +12,7 @@ export const cfg = {
     .split(',')
     .map(s => s.trim())
     .filter(Boolean),
-  secureCookie: process.env.NODE_ENV === 'production',
+  secureCookie: process.env.COOKIE_SECURE ? process.env.COOKIE_SECURE === '1' : process.env.NODE_ENV === 'production',
   sessionTtlMs: Number(process.env.SESSION_TTL_HOURS ?? 12) * 3600_000,
   trustProxy: bool(process.env.TRUST_PROXY, true),
   hashSalt: process.env.HASH_SALT ?? 'dev-salt-change-me',
