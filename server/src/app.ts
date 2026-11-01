@@ -20,18 +20,22 @@ export async function buildApp(db: DB, cfg: Cfg = defaultCfg): Promise<FastifyIn
     bodyLimit: 64 * 1024
   });
 
+  /* HTTPS 未就绪时必须关掉 upgrade-insecure-requests：
+     否则浏览器会把 /admin/login 的表单提交悄悄升级成 https://，而 8080 上没有 TLS，
+     表现就是「点登录没反应」。等证书就绪（COOKIE_SECURE=1）再打开。 */
+  const cspDirectives: Record<string, string[] | null> = {
+    defaultSrc: ["'self'"],
+    styleSrc: ["'self'", "'unsafe-inline'"],
+    imgSrc: ["'self'", 'data:'],
+    scriptSrc: ["'none'"],
+    frameAncestors: ["'none'"],
+    formAction: ["'self'"],
+    baseUri: ["'self'"]
+  };
+  if (!cfg.secureCookie) cspDirectives.upgradeInsecureRequests = null;
+
   await app.register(helmet, {
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
-        imgSrc: ["'self'", 'data:'],
-        scriptSrc: ["'none'"],
-        frameAncestors: ["'none'"],
-        formAction: ["'self'"],
-        baseUri: ["'self'"]
-      }
-    },
+    contentSecurityPolicy: { directives: cspDirectives },
     crossOriginResourcePolicy: { policy: 'same-origin' }
   });
   await app.register(fastifyCookie, { secret: cfg.hashSalt, hook: 'onRequest' });

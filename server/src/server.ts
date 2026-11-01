@@ -2,6 +2,7 @@ import { cfg } from './config.ts';
 import { openDb, seedAdmin, seedNotesIfEmpty } from './db.ts';
 import { hashPassword } from './auth.ts';
 import { buildApp } from './app.ts';
+import { repositionApproved } from './routes/admin.ts';
 import fs from 'node:fs';
 
 const db = openDb(cfg.dbPath);
@@ -22,6 +23,10 @@ if (fs.existsSync(seedFile)) {
   const seed = JSON.parse(fs.readFileSync(seedFile, 'utf8')) as { chapters: { label: string; en: string; notes: { tag: string; q: string; a: string }[] }[] };
   seedNotesIfEmpty(db, seed.chapters);
 }
+
+/* 旧坐标如果压在 NOTE 面板或右侧清单下面，开机时重排一次 */
+const moved = repositionApproved(db);
+if (moved) console.log(`重排了 ${moved} 条留言的蝴蝶位置`);
 
 const app = await buildApp(db, cfg);
 await app.listen({ port: cfg.port, host: cfg.host });

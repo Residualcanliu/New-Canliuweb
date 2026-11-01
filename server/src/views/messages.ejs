@@ -1,5 +1,12 @@
 <%- include('partials/head', { title: '留言审核', session }) %>
 <h1>留言审核</h1>
+<h2>手动添加（跳过审核，直接上线）</h2>
+<form class="stack" method="post" action="/admin/messages/new" style="margin-bottom:18px">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <label>署名<input name="name" required maxlength="20" placeholder="例如：阿茶"></label>
+  <label>留言内容<textarea name="content" required maxlength="300" placeholder="最多 300 字"></textarea></label>
+  <button class="btn" type="submit">添加并上线</button>
+</form>
 <div class="filters">
   <% const tabs = [['pending','待审核'],['approved','已上线'],['rejected','已拒绝'],['all','全部']]; %>
   <% tabs.forEach(([k,label]) => { %>

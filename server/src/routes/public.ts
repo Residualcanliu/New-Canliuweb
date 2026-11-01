@@ -15,7 +15,7 @@ const clean = (s: string) => s.replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\
 export function publicRoutes(app: FastifyInstance, db: DB, cfg: Cfg): void {
   app.get('/api/messages', async (_req, reply) => {
     const rows = db.prepare(`
-      SELECT public_id AS id, name, content, x, y, rot, scale
+      SELECT public_id AS id, name, content, x, y, rot, scale, approved_at
       FROM messages WHERE status = 'approved'
       ORDER BY approved_at ASC LIMIT 300
     `).all();
