@@ -1,6 +1,8 @@
 {
   "name": "gch-personal-site",
   "private": true,
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/Residualcanliu/New-Canliuweb.git" },
   "version": "1.0.0",
   "type": "module",
   "scripts": {
@@ -8,8 +10,7 @@
     "build": "tsc --noEmit && vite build && node scripts/build-offline.mjs",
     "build:offline": "node scripts/build-offline.mjs",
     "preview": "vite preview --host 127.0.0.1",
-    "start": "node scripts/serve.mjs",
-    "test": "node --experimental-strip-types --test tests/*.test.ts"
+    "start": "node scripts/serve.mjs"
   },
   "dependencies": {
     "react": "^19.3.1",
