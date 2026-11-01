@@ -40,12 +40,34 @@ function AsciiMark({ rows }: { rows: string[] }) {
   return <pre className="tm-banner" role="img" aria-label="CANLIU">{rows.join(String.fromCharCode(10))}</pre>;
 }
 
+/* 致谢名单：名字按显示宽度补空格（中文算 2 格），等宽字体下才对得齐 */
+const CREDITS: [string, string][] = [
+  ['繁星#3377', '美术指导'],
+  ['Funkierry', '美术指导'],
+  ['DeepSeek-V4.1', '技术指导'],
+  ['Claude', '框架支持'],
+  ['GPT-6 Sol', '美术支持'],
+  ['WorkBuddy', '经费支持']
+];
+const dw = (s: string) => [...s].reduce((n, c) => n + (/[\u2e80-\u9fff\uff00-\uffef]/.test(c) ? 2 : 1), 0);
+const creditsLines = (): Line[] => [
+  { k: 'out', t: 'CREDITS / 致谢' },
+  ...CREDITS.map(([who, role]) => ({
+    k: 'out' as const,
+    t: `${who}${' '.repeat(Math.max(2, 15 - dw(who)))}${role}`
+  })),
+  { k: 'out', t: '' },
+  { k: 'out', t: '模板参考  https://github.com/Funkierry/the-masses-travels' },
+  { k: 'out', t: '感谢你的访问，致以最高的感谢。' }
+];
+
 function Terminal() {
   const [lines, setLines] = useState<Line[]>([
     { k: 'menu', t: 'help      列出全部命令' },
     { k: 'menu', t: 'works     项目清单' },
     { k: 'menu', t: 'contact   邮箱与链接' },
     { k: 'menu', t: 'about     关于我' },
+    { k: 'menu', t: 'credits   致谢名单' },
     { k: 'menu', t: 'date      当前时间' },
     { k: 'menu', t: 'clear     清屏' },
     { k: 'sys', t: `GCH LAB · 2026 · 已载入 ${works.length} 个项目 / ${NOTE_TOTAL} 条笔记` }
@@ -66,7 +88,7 @@ function Terminal() {
     let out = '';
     switch (head.toLowerCase()) {
       case 'help':
-        out = 'help · about · works · contact · whoami · date · sudo · clear';
+        out = 'help · about · works · contact · credits · whoami · date · sudo · clear';
         break;
       case 'about':
         out = P.bio;
@@ -83,6 +105,11 @@ function Terminal() {
       case 'date':
         out = new Date().toLocaleString('zh-CN');
         break;
+      case 'credits':
+      case 'thanks':
+        setLines(v => [...v, { k: 'in', t: cmd }, ...creditsLines()]);
+        setVal('');
+        return;
       case 'sudo':
         out = '权限不足。不过可以先去看看作品集。';
         break;
@@ -111,7 +138,7 @@ function Terminal() {
         ))}
       </div>
       <div className="tm-quick">
-        {['help', 'works', 'contact', 'clear'].map(c => (
+        {['help', 'works', 'contact', 'credits', 'clear'].map(c => (
           <button key={c} type="button" onClick={() => run(c)}>{c}</button>
         ))}
       </div>
