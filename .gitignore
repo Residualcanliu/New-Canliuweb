@@ -7,3 +7,7 @@ dist-ssr/
 .DS_Store
 Thumbs.db
 *.log
+
+# 离线单文件构建产物
+个人网站样例.html
+双击打开.html

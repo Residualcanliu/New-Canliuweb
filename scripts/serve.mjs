@@ -7,7 +7,7 @@ import { spawn } from 'node:child_process';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../dist');
 const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.webp':'image/webp','.png':'image/png','.jpg':'image/jpeg','.mp4':'video/mp4','.m4a':'audio/mp4','.svg':'image/svg+xml','.json':'application/json'};
-const appId='the-masses-travels-local-v1';
+const appId='gch-site-local-v1';
 const host='127.0.0.1';
 let port=Number(process.env.PORT)||5173;
 const server=http.createServer(async(req,res)=>{
@@ -15,7 +15,7 @@ const server=http.createServer(async(req,res)=>{
   if(!['GET','HEAD'].includes(req.method)){res.writeHead(405,{Allow:'GET, HEAD'});res.end();return;}
   const pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);
   if(pathname==='/__health'){res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({app:appId}));return;}
-  const file=path.resolve(root,'.'+(pathname==='/'?'/index.html':pathname));
+  const file=path.resolve(root,'.'+(pathname==='/'?'/personal.html':pathname));
   if(!file.startsWith(root+path.sep)){res.writeHead(403);res.end('Forbidden');return;}
   const info=await stat(file);if(!info.isFile()){res.writeHead(404);res.end('Not found');return;}
   const headers={'Content-Type':mime[path.extname(file)]||'application/octet-stream','Accept-Ranges':'bytes','Cache-Control':'no-cache','X-Content-Type-Options':'nosniff'};

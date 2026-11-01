@@ -6,8 +6,7 @@ import { fileURLToPath } from 'node:url';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 // Two portable pages: the festival edition (all media) and the personal-site sample (images only).
 const entries=[
- {entry:'src/main.ts',out:'双击打开.html',title:'众生行记 · 离线交互映像',media:()=>true},
- {entry:'src/site/main.ts',out:'个人网站样例.html',title:'林叶 · 个人网站样例',media:name=>name.endsWith('.webp')}
+ {entry:'src/site/main.ts',out:'个人网站样例.html',title:'GCH · 个人网站',media:name=>name.endsWith('.webp')}
 ];
 const dir=path.join(root,'public/assets');
 const mime={'.webp':'image/webp','.m4a':'audio/mp4','.mp4':'video/mp4','.mp3':'audio/mpeg'};

@@ -1,5 +1,5 @@
 {
-  "name": "the-masses-travels",
+  "name": "gch-personal-site",
   "private": true,
   "version": "1.0.0",
   "type": "module",
@@ -9,18 +9,15 @@
     "build:offline": "node scripts/build-offline.mjs",
     "preview": "vite preview --host 127.0.0.1",
     "start": "node scripts/serve.mjs",
-    "test": "node --experimental-strip-types --test tests/*.test.ts",
-    "verify": "node scripts/verify-release.mjs"
+    "test": "node --experimental-strip-types --test tests/*.test.ts"
   },
   "dependencies": {
     "react": "^19.3.1",
-    "react-dom": "^19.3.1",
-    "three": "0.180.0"
+    "react-dom": "^19.3.1"
   },
   "devDependencies": {
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
-    "@types/three": "0.180.0",
     "@vitejs/plugin-react": "^5.2.0",
     "typescript": "~5.9.3",
     "vite": "^7.1.0"
