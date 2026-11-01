@@ -55,17 +55,7 @@ export const works: RouteNode[] = [
 export const WORKS_WIDTH = 540;
 export const workLinks: [string, string][] = [['wk-02', 'web-01'], ['web-01', 'match-03'], ['match-03', 'wk-04'], ['wk-04', 'nt-01'], ['nt-01', 'wk-05']];
 
-// 留言墙：每一只羽兽带一条留言；name 是留言内容，en 是署名与时间。
-export const skills = [
- { name: '第一版比现在好看多了，你要不要看看', en: '匿名 · 2026.10.12', level: 5 },
- { name: '这个开场我能看十遍', en: '阿茶 · 2026.10.08', level: 5 },
- { name: '想要一个能拖的地图，这个就很好', en: 'Lin · 2026.09.28', level: 4 },
- { name: '求一套配色，钴蓝那个', en: '夜航 · 2026.09.20', level: 4 },
- { name: '做设计的还写前端，厉害', en: '小满 · 2026.09.11', level: 5 },
- { name: '页面很安静，但东西都在动', en: 'K. · 2026.08.30', level: 4 },
- { name: '什么时候出第二版', en: '路过 · 2026.08.19', level: 3 },
- { name: '在你的站里学到了留白', en: 'Yin · 2026.08.02', level: 4 }
-];
+// 留言墙的数据不再写在这里：全部由后端 /api/messages 提供（后台审核通过才出现）。
 
 
 // 隐藏页：集齐 canliu 六个字母后打开。

@@ -3,14 +3,14 @@ import '../graphic.css';
 import './site.css';
 import { assetUrl, resolveMarkupAssets } from '../assets.ts';
 import { icon, ring } from '../ui.ts';
-import { birdPlate, flock, rng } from '../graphics.ts';
+import { birdPlate, flock, rng, type BirdSpec } from '../graphics.ts';
 import { Reticle, NodeField, scramble, burst, ripple, morphGlyph, countTo, type Burst } from '../fx.ts';
 import { homePlate } from '../plates.ts';
 import { RouteMap } from '../route.ts';
 import { wrap } from '../util.ts';
 import { readStored, saveStored } from '../storage.ts';
 import type { RouteNode } from '../data.ts';
-import { profile as P, works, WORKS_WIDTH, workLinks, skills, secret } from './profile.ts';
+import { profile as P, works, WORKS_WIDTH, workLinks, secret } from './profile.ts';
 
 // A personal site on the festival template: the same screens, motion and interactions, fed by profile.ts.
 type Page='home'|'about'|'works'|'skills'|'contact';
@@ -33,7 +33,13 @@ let page:Page='home',scanTimer=0,enterTimer=0,active:HTMLElement|null=null,pendi
 const accentStyle=`--accent:${P.accent}`;
 const app=document.querySelector<HTMLDivElement>('#app')!;
 const nameLines=(seed:number,text?:string)=>{const r=rng(seed);let j=0;return (text?[text]:P.name.lines).map((line,i)=>`<span class="name-line line-${i}">${[...line].map(c=>`<span class="ch" style="--dx:${((r()-.5)*260).toFixed(0)}px;--dy:${((r()-.5)*140).toFixed(0)}px;--r:${((r()-.5)*40).toFixed(0)}deg;--sc:${(.6+r()*1.4).toFixed(2)};--j:${j++}">${c}</span>`).join('')}</span>`).join('');};
-const skillBirds=flock(6,skills.length*3);
+/* 留言墙：留言全部来自 /api/messages（后台审核通过后才会出现），前端不再写死任何一条。 */
+type GuestNote={body:string;en:string;level:number;x:number;y:number;rot:number;scale:number};
+let guestNotes:GuestNote[]=[];
+let skillBirds=flock(6,0);
+let guestState:'idle'|'loading'|'ready'|'error'='idle';
+const esc=(s:string)=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));
+const shortDate=(ts:number)=>{if(!ts)return '';const d=new Date(ts);return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;};
 
 /* ── 个人介绍右侧：一组「网页窗口」卡片 ────────────────────────────────────
    首页已经有一张大圆盘，这一页不再重复；资料改成一叠错落的小窗：
@@ -91,11 +97,11 @@ app.innerHTML=resolveMarkupAssets(`
 
  <section id="records" class="screen hidden" aria-label="作品集"></section>
 
- <section id="atlas" class="screen hidden" aria-label="留言"><div class="atlas-stage" data-plate="0" data-cursor="留言"><div class="atlas-plate p0">${birdPlate(true,'skill',skillBirds.length)}</div><i class="atlas-scan"></i></div>
-  <div class="atlas-head"><span class="eyebrow" data-scramble>GUESTBOOK / ${skills.length} NOTES</span><h2>留言</h2></div>
-  <div class="atlas-readout"><small>NOTE</small><b id="skill-name">--</b><div id="skill-spec">将指针移到蝴蝶上<br>读一条留言</div></div>
-  <div class="atlas-tools"><div class="tools-0" style="display:flex"><button class="line-button" data-action="recall">召回 RECALL</button><span class="atlas-count">已放飞 <b id="skill-count">00</b> / ${skillBirds.length}</span></div></div>
-  <div class="skill-list">${skills.map((s,i)=>`<button data-skill="${i}"><small>${String(i+1).padStart(2,'0')}</small>${s.en}<i style="--l:${s.level/5}"></i></button>`).join('')}</div>
+ <section id="atlas" class="screen hidden" aria-label="留言"><div class="atlas-stage" data-plate="0" data-cursor="留言"><div class="atlas-plate p0" id="skill-plate"></div><i class="atlas-scan"></i></div>
+  <div class="atlas-head"><span class="eyebrow" data-scramble id="guest-count">GUESTBOOK</span><h2>留言</h2></div>
+  <div class="atlas-readout"><small>NOTE</small><b id="skill-name">--</b><div id="skill-spec">正在读取留言<br>请稍候</div></div>
+  <div class="atlas-tools"><div class="tools-0" style="display:flex"><button class="line-button" data-action="recall">召回 RECALL</button><span class="atlas-count">已放飞 <b id="skill-count">00</b> / <b id="skill-total">00</b></span></div></div>
+  <div class="skill-list" id="skill-list"></div>
  </section>
 
  <section id="contact" class="screen hidden" aria-label="功能"><div class="lab-root" id="lab-root"></div>
@@ -233,7 +239,7 @@ function setPage(next:Page,animate=true){
  if(next==='contact')requestAnimationFrame(mountLab);
  if(next==='works')route.enter();
  if(next==='about'){const n=$('#op-name');n.classList.remove('assemble');void n.offsetWidth;if(motion)n.classList.add('assemble');}
- if(next==='skills'){$('.atlas-stage').classList.remove('scanning');void $('.atlas-stage').offsetWidth;$('.atlas-stage').classList.add('scanning');}
+ if(next==='skills'){$('.atlas-stage').classList.remove('scanning');void $('.atlas-stage').offsetWidth;$('.atlas-stage').classList.add('scanning');void loadGuestbook();}
  renderGlyphs();
  if(anim){incoming.classList.remove('entering');void incoming.offsetWidth;incoming.classList.add('entering');clearTimeout(enterTimer);enterTimer=window.setTimeout(()=>incoming.classList.remove('entering'),1100);
   if(outgoing&&outgoing!==incoming){outgoing.classList.remove('hidden');outgoing.classList.add('leaving');outgoing.inert=true;setTimeout(()=>{outgoing.classList.remove('leaving');outgoing.inert=false;if(outgoing!==active)outgoing.classList.add('hidden');},460);}}
@@ -241,8 +247,65 @@ function setPage(next:Page,animate=true){
  const h=next==='home'?'':next==='works'?`#/works/${works[route.selected].id}`:`#/${next}`;if(location.hash!==h)history.replaceState(null,'',h||location.pathname);
 }
 function homeScan(on:boolean){clearTimeout(scanTimer);if(page!=='home')return;if(on)stage.classList.add('home-scan');else scanTimer=window.setTimeout(()=>stage.classList.remove('home-scan'),260);}
-function skillOf(n:number){return skills[(n-1)%skills.length];}
-function showSkill(n:number){const s=skillOf(n);const el=$('#skill-name');if(el.dataset.text!==s.name)scramble(el,320,s.name);$('#skill-spec').innerHTML=`${s.en}<br><span style="opacity:.55">留言 No.${String(n).padStart(2,'0')}</span>`;document.querySelectorAll<HTMLElement>('[data-skill]').forEach(b=>b.classList.toggle('active',skills[+b.dataset.skill!]===s));}
+function skillOf(n:number){return guestNotes.length?guestNotes[(n-1)%guestNotes.length]:undefined;}
+function showSkill(n:number){
+ const s=skillOf(n);
+ if(!s)return;
+ const el=$('#skill-name');
+ if(el.dataset.text!==s.body){el.dataset.text=s.body;scramble(el,320,s.body);}
+ $('#skill-spec').innerHTML=`${esc(s.en)}<br><span style="opacity:.55">留言 No.${String(n).padStart(2,'0')}</span>`;
+ const idx=(n-1)%guestNotes.length;
+ document.querySelectorAll<HTMLElement>('[data-skill]').forEach(b=>b.classList.toggle('active',Number(b.dataset.skill)===idx));
+}
+
+/* 留言墙渲染：条数、蝴蝶数量、右侧清单、空/错状态都从这里出。 */
+function renderGuestbook(){
+ const n=guestNotes.length;
+ const total=n;            // 一条留言 = 一只蝴蝶
+ /* 用后台分配的百分比坐标落位（x/y 是图版 0–100 的相对位置），前端不再自己乱飞 */
+ const specs:BirdSpec[]=guestNotes.map((g,i)=>({n:i+1,x:g.x/100*1600,y:g.y/100*700,s:g.scale,r:g.rot,flip:false}));
+ skillBirds=specs;
+ $('#skill-plate').innerHTML=birdPlate(true,'skill',total,specs)+(n?''
+  :`<div class="skill-empty"><b>${guestState==='error'?'留言读取失败':'还没有留言'}</b><span>${guestState==='error'?'刷新页面再试一次':'后台审核通过后，蝴蝶会飞进来'}</span></div>`);
+ const head=$('#guest-count');
+ head.textContent=guestState==='error'?'GUESTBOOK / OFFLINE':`GUESTBOOK / ${n} NOTES`;
+ head.dataset.text=head.textContent;
+ $('#skill-total').textContent=String(total).padStart(2,'0');
+ countTo($('#skill-count'),0);
+ released.clear();
+ const name=$('#skill-name');
+ name.textContent='--';name.dataset.text='--';
+ $('#skill-spec').innerHTML=guestState==='loading'?'正在读取留言<br>请稍候'
+  :guestState==='error'?'读取失败<br>刷新页面再试'
+  :n?'将指针移到蝴蝶上<br>读一条留言'
+  :'留言板还空着<br>去后台放几条进来';
+ $('#skill-list').innerHTML=n
+  ? guestNotes.map((s,i)=>`<button data-skill="${i}"><small>${String(i+1).padStart(2,'0')}</small>${esc(s.en)}<i style="--l:${s.level/5}"></i></button>`).join('')
+  : '';
+}
+
+/* 只认接口数据；接口 404 或断网时保持空板，不拿假数据糊上去。 */
+async function loadGuestbook(force=false){
+ if(guestState==='ready'&&!force)return;
+ guestState='loading';
+ try{
+  const res=await fetch('/api/messages',{headers:{accept:'application/json'},cache:'no-store'});
+  if(!res.ok)throw new Error(String(res.status));
+  const data=await res.json() as {messages?:{name:string;content:string;approved_at?:number;x?:number|null;y?:number|null;rot?:number|null;scale?:number|null}[]};
+  guestNotes=(data.messages??[]).map((m,i)=>({
+   body:m.content,
+   en:`${m.name} · ${shortDate(m.approved_at??0)}`.trim(),
+   level:5,
+   x:m.x??(12+(i*29)%76), y:m.y??(22+(i*23)%58),
+   rot:m.rot??0, scale:m.scale??1.1
+  }));
+  guestState='ready';
+ }catch{
+  guestState='error';
+ }
+ renderGuestbook();
+}
+renderGuestbook();
 
 const actions:Record<string,(el:HTMLElement)=>void>={
  home:()=>setPage('home'),about:()=>setPage('about'),glyph:el=>collect(el),secret:()=>openSecret(),works:()=>setPage('works'),skills:()=>setPage('skills'),contact:()=>setPage('contact'),
