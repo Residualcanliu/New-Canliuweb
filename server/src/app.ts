@@ -44,7 +44,7 @@ export async function buildApp(db: DB, cfg: Cfg = defaultCfg): Promise<FastifyIn
     max: 120,
     timeWindow: '1 minute',
     keyGenerator: req => req.ip,
-    errorResponseBuilder: () => ({ error: '请求过于频繁，稍后再试' })
+    errorResponseBuilder: (_req, ctx) => ({ statusCode: 429, error: `请求过于频繁，请 ${Math.ceil(ctx.ttl / 1000)} 秒后再试` })
   });
   await app.register(view, { engine: { ejs }, root: viewsRoot });
 
@@ -58,13 +58,16 @@ export async function buildApp(db: DB, cfg: Cfg = defaultCfg): Promise<FastifyIn
 
   app.setErrorHandler((err, req, reply) => {
     const e = err as { statusCode?: number; message?: string; stack?: string };
-    if (cfg.isProd) {
-      if (req.url.startsWith('/api/')) return reply.code(500).send({ error: '服务器错误' });
-      return reply.code(500).type('text/plain; charset=utf-8').send('Server error');
+    /* 保留 4xx（限流 429、校验 400 之类），只有真正没状态码的才当 500 */
+    const code = e.statusCode && e.statusCode >= 400 && e.statusCode < 600 ? e.statusCode : 500;
+    if (code >= 500) console.error(e);
+    if (req.url.startsWith('/api/')) {
+      if (code === 429) return reply.code(429).send({ error: '请求过于频繁，稍后再试' });
+      if (code >= 500 && cfg.isProd) return reply.code(500).send({ error: '服务器错误' });
+      return reply.code(code).send({ error: e.message ?? 'error' });
     }
-    console.error(e);
-    if (req.url.startsWith('/api/')) return reply.code(e.statusCode ?? 500).send({ error: e.message ?? 'error' });
-    return reply.code(500).type('text/plain; charset=utf-8').send(String(e.stack ?? e));
+    if (code >= 500 && cfg.isProd) return reply.code(500).type('text/plain; charset=utf-8').send('Server error');
+    return reply.code(code).type('text/plain; charset=utf-8').send(String(code >= 500 ? (e.stack ?? e) : (e.message ?? '请求有误')));
   });
 
   return app;

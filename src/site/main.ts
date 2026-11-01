@@ -101,7 +101,28 @@ app.innerHTML=resolveMarkupAssets(`
   <div class="atlas-head"><span class="eyebrow" data-scramble id="guest-count">GUESTBOOK</span><h2>留言</h2></div>
   <div class="atlas-readout"><small>NOTE</small><b id="skill-name">--</b><div id="skill-spec">正在读取留言<br>请稍候</div></div>
   <div class="atlas-tools"><div class="tools-0" style="display:flex"><button class="line-button" data-action="recall">召回 RECALL</button><span class="atlas-count">已放飞 <b id="skill-count">00</b> / <b id="skill-total">00</b></span></div></div>
-  <div class="skill-list" id="skill-list"></div>
+  <div class="note-panel is-empty" id="note-panel" data-open="0">
+   <button type="button" class="note-toggle" data-action="note-toggle" aria-expanded="false" aria-controls="skill-list">
+    <span>留言清单</span><b id="note-count">00</b><i aria-hidden="true"></i>
+   </button>
+   <div class="skill-list" id="skill-list"></div>
+  </div>
+  <form class="compose" id="compose" data-open="0" autocomplete="off" novalidate>
+   <button type="button" class="compose-toggle" data-action="compose-toggle" aria-expanded="false" aria-controls="compose-body">
+    <i aria-hidden="true"></i><span>写一条留言</span><small>WRITE A NOTE</small>
+   </button>
+   <div class="compose-body" id="compose-body">
+    <div class="compose-line">
+     <label class="compose-field"><span>名字</span><input name="name" type="text" maxlength="20" autocomplete="off" placeholder="怎么称呼你"></label>
+    </div>
+    <label class="compose-field compose-area"><span>内容</span><textarea name="content" maxlength="300" rows="3" placeholder="想说的话，最多 300 字"></textarea></label>
+    <div class="compose-foot">
+     <p class="compose-tip" id="compose-tip" aria-live="polite">提交后需要审核，通过后会化作一只蝴蝶</p>
+     <button class="compose-send" type="submit">提交</button>
+    </div>
+   </div>
+   <input class="compose-hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+  </form>
  </section>
 
  <section id="contact" class="screen hidden" aria-label="功能"><div class="lab-root" id="lab-root"></div>
@@ -271,6 +292,8 @@ function renderGuestbook(){
  head.textContent=guestState==='error'?'GUESTBOOK / OFFLINE':`GUESTBOOK / ${n} NOTES`;
  head.dataset.text=head.textContent;
  $('#skill-total').textContent=String(total).padStart(2,'0');
+ $('#note-count').textContent=String(n).padStart(2,'0');
+ const panel=$('#note-panel');panel.classList.toggle('is-empty',n===0);if(!n)panel.dataset.open='0';
  countTo($('#skill-count'),0);
  released.clear();
  const name=$('#skill-name');
@@ -307,17 +330,47 @@ async function loadGuestbook(force=false){
 }
 renderGuestbook();
 
+/* 写留言：走公开接口 POST /api/messages，成功即进入待审；限流由后端按 IP 控制。 */
+const composeForm=$('#compose') as HTMLFormElement;
+composeForm.addEventListener('submit',async e=>{
+ e.preventDefault();
+ const fd=new FormData(composeForm);
+ const name=String(fd.get('name')??'').trim();
+ const content=String(fd.get('content')??'').trim();
+ const website=String(fd.get('website')??'');
+ const tip=$('#compose-tip');
+ const btn=composeForm.querySelector<HTMLButtonElement>('.compose-send')!;
+ const say=(msg:string,kind:''|'bad'|'good')=>{tip.textContent=msg;tip.className='compose-tip'+(kind?` ${kind}`:'');};
+ if(!name||!content){say('名字和内容都要填','bad');return;}
+ btn.disabled=true;say('提交中…','');
+ try{
+  const res=await fetch('/api/messages',{method:'POST',headers:{'content-type':'application/json',accept:'application/json'},body:JSON.stringify({name,content,website})});
+  if(res.status===429){say('同一个 IP 一小时最多 3 条，稍后再来','bad');return;}
+  if(!res.ok){const j=await res.json().catch(()=>null) as {error?:string}|null;say(j?.error??'提交失败，稍后再试','bad');return;}
+  composeForm.reset();composeForm.dataset.open='0';
+  composeForm.querySelector('.compose-toggle')?.setAttribute('aria-expanded','false');
+  say('已提交，站长审核通过后就会化作一只蝴蝶','good');
+  toast('留言已提交 · 等待审核');
+ }catch{
+  say('网络不通，稍后再试','bad');
+ }finally{
+  btn.disabled=false;
+ }
+});
+
 const actions:Record<string,(el:HTMLElement)=>void>={
  home:()=>setPage('home'),about:()=>setPage('about'),glyph:el=>collect(el),secret:()=>openSecret(),works:()=>setPage('works'),skills:()=>setPage('skills'),contact:()=>setPage('contact'),
  fullscreen:()=>{void (document.fullscreenElement?document.exitFullscreen():stage.requestFullscreen()).catch(()=>toast('可使用 F11 进入全屏'));},
  'work-prev':()=>route.step(-1),'work-next':()=>route.step(1),'route-goto':el=>{const i=works.findIndex(w=>w.id===el.dataset.id);if(i>=0)route.select(i);},'route-seq':el=>route.seekStage(+el.dataset.seq!),'route-pins-clear':()=>route.clearPins(),
+ 'note-toggle':()=>{const p=$('#note-panel');const open=p.dataset.open==='1'?'0':'1';p.dataset.open=open;p.querySelector('.note-toggle')?.setAttribute('aria-expanded',String(open==='1'));},
+ 'compose-toggle':()=>{const f=$('#compose') as HTMLFormElement;const open=f.dataset.open==='1'?'0':'1';f.dataset.open=open;f.querySelector('.compose-toggle')?.setAttribute('aria-expanded',String(open==='1'));if(open==='1')window.setTimeout(()=>f.querySelector<HTMLInputElement>('input[name=name]')?.focus(),70);},
  recall:()=>{document.querySelectorAll('.p0 .flown').forEach(g=>{g.classList.remove('flown');g.classList.add('returning');});released.clear();countTo($('#skill-count'),0);},
  'copy-mail':()=>{const task=navigator.clipboard?.writeText(P.contact.email);if(task)void task.then(()=>toast('邮箱已复制'),()=>toast(P.contact.email));else toast(P.contact.email);}
 };
 document.addEventListener('click',e=>{
  const t=e.target as HTMLElement;const b=t.closest<HTMLElement>('button,[data-action]');
  const bird=t.closest<SVGElement>('[data-bird]');if(bird&&!released.has(+bird.dataset.bird!)){const n=+bird.dataset.bird!;released.add(n);bird.classList.remove('returning');bird.classList.add('flown');countTo($('#skill-count'),released.size);showSkill(n);return;}
- if(!b){if(motion&&!t.closest('.route-view,.atlas-stage,.covenant,a'))ripple($('#ripples'),e.clientX,e.clientY);return;}
+ if(!b){if(motion&&!t.closest('.route-view,.atlas-stage,.covenant,a,.compose'))ripple($('#ripples'),e.clientX,e.clientY);return;}
  const a=b.dataset.action;if(a&&actions[a]){actions[a](b);return;}
  if(b.dataset.route!==undefined)route.select(+b.dataset.route);
  if(b.dataset.skill!==undefined){const i=+b.dataset.skill;showSkill(i+1);const g=document.querySelector(`.p0 [data-bird="${i+1}"]`);g?.classList.add('hot');setTimeout(()=>g?.classList.remove('hot'),900);}
