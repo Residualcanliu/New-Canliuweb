@@ -380,8 +380,10 @@ stage.addEventListener('pointerout',e=>{const t=(e.target as Element).closest('[
 stage.addEventListener('pointermove',e=>{
  field.point(e.clientX,e.clientY);if(!motion)return;pendingParallax={x:e.clientX/innerWidth-.5,y:e.clientY/innerHeight-.5};
 });
+/* 焦点在输入控件里时不接管键盘：留言板是 textarea，只判断 input 会让左右键翻页 */
+const isTyping=(el:EventTarget|null)=>el instanceof HTMLInputElement||el instanceof HTMLTextAreaElement||el instanceof HTMLSelectElement||(el instanceof HTMLElement&&el.isContentEditable);
 document.addEventListener('keydown',e=>{
- if(e.target instanceof HTMLInputElement||e.ctrlKey||e.metaKey)return;
+ if(isTyping(e.target)||e.ctrlKey||e.metaKey||e.altKey)return;
  const i=PAGES.findIndex(p=>p[0]===page);
  if(e.key==='Escape'&&page!=='home')setPage('home');
  if(e.key==='ArrowRight'||e.key==='ArrowLeft'){const d=e.key==='ArrowRight'?1:-1;if(page==='works'){e.preventDefault();route.step(d);}else{e.preventDefault();setPage(PAGES[wrap(i+d,PAGES.length)][0]);}}
