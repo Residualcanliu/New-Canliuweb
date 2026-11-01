@@ -1,0 +1,11 @@
+<%- include('partials/head', { title: '概览', session }) %>
+<h1>概览</h1>
+<div class="cards">
+  <div class="card"><small>PENDING</small><b><%= counts.pending %></b><a class="muted" href="/admin/messages?status=pending">待审核 →</a></div>
+  <div class="card"><small>APPROVED</small><b><%= counts.approved %></b><a class="muted" href="/admin/messages?status=approved">已上线 →</a></div>
+  <div class="card"><small>REJECTED</small><b><%= counts.rejected %></b><a class="muted" href="/admin/messages?status=rejected">已拒绝 →</a></div>
+  <div class="card"><small>NOTES</small><b><%= notesCount %></b><a class="muted" href="/admin/notes">管理笔记 →</a></div>
+</div>
+<h2>操作</h2>
+<p class="muted">留言通过后会自动分配蝴蝶坐标，前端读取 <code>/api/messages</code> 渲染。笔记通过 <code>/api/notes</code> 输出。</p>
+<%- include('partials/foot') %>

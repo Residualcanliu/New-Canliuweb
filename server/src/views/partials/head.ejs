@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title><%= title %> · GCH 后台</title>
+<style>
+  :root{--ink:#22282b;--muted:#7b868a;--line:#d9dedd;--cobalt:#2b4bd8;--bg:#f4f5f1}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.7 -apple-system,"Segoe UI","Noto Sans SC",sans-serif}
+  header{display:flex;align-items:center;gap:18px;padding:14px 24px;background:#fff;border-bottom:1px solid var(--line)}
+  header b{font:600 15px/1 monospace;letter-spacing:2px;color:var(--cobalt)}
+  header nav{display:flex;gap:14px;margin-left:auto;font-size:13px}
+  header a{color:var(--ink);text-decoration:none;border-bottom:1px solid transparent;padding-bottom:2px}
+  header a:hover{color:var(--cobalt);border-color:var(--cobalt)}
+  header form{margin:0}
+  header button{border:0;background:none;color:var(--muted);font:inherit;cursor:pointer}
+  main{max-width:980px;margin:0 auto;padding:28px 20px 60px}
+  h1{font-size:20px;margin:0 0 18px}
+  h2{font-size:15px;margin:26px 0 10px}
+  .cards{display:flex;gap:12px;flex-wrap:wrap}
+  .card{flex:1 1 160px;background:#fff;border:1px solid var(--line);padding:14px 16px}
+  .card small{display:block;color:var(--muted);font:10px monospace;letter-spacing:1px}
+  .card b{font:600 28px/1.4 monospace}
+  table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line)}
+  th,td{padding:9px 12px;border-bottom:1px solid #eef0ee;text-align:left;vertical-align:top;font-size:13px}
+  th{font:10px monospace;letter-spacing:1px;color:var(--muted);background:#fafbf8}
+  .actions{display:flex;gap:6px;flex-wrap:wrap}
+  button.btn, a.btn{font:12px/1 inherit;padding:6px 10px;border:1px solid var(--line);background:#fff;color:var(--ink);text-decoration:none;cursor:pointer}
+  button.btn:hover{border-color:var(--cobalt);color:var(--cobalt)}
+  .ok{border-color:#b9d6c5;color:#1f6b43}
+  .no{border-color:#e3c3c0;color:#a1403a}
+  form.inline{display:inline}
+  .filters{display:flex;gap:8px;margin-bottom:12px;font-size:13px}
+  .filters a{padding:4px 9px;border:1px solid var(--line);background:#fff;text-decoration:none;color:var(--ink)}
+  .filters a.on{background:var(--cobalt);border-color:var(--cobalt);color:#fff}
+  form.stack{background:#fff;border:1px solid var(--line);padding:14px 16px;display:grid;gap:8px;max-width:560px}
+  label{font-size:12px;color:var(--muted)}
+  input,textarea,select{width:100%;border:1px solid var(--line);padding:8px 10px;font:inherit;background:#fff}
+  textarea{min-height:64px;resize:vertical}
+  .row{display:flex;gap:10px}.row>*{flex:1}
+  .muted{color:var(--muted);font-size:12px}
+  .err{color:#a1403a;font-size:13px}
+  @media(max-width:640px){header{flex-wrap:wrap}main{padding:18px 12px}th:nth-child(3),td:nth-child(3){display:none}}
+</style>
+</head>
+<body>
+<header>
+  <b>GCH / ADMIN</b>
+  <% if (typeof session !== 'undefined' && session) { %>
+  <nav>
+    <a href="/admin">概览</a>
+    <a href="/admin/messages">留言</a>
+    <a href="/admin/notes">笔记</a>
+    <form method="post" action="/admin/logout"><button type="submit">退出</button></form>
+  </nav>
+  <% } %>
+</header>
+<main>

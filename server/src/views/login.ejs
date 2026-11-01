@@ -1,0 +1,10 @@
+<%- include('partials/head', { title: '登录', session: null }) %>
+<h1>登录</h1>
+<% if (error) { %><p class="err"><%= error %></p><% } %>
+<form class="stack" method="post" action="/admin/login" autocomplete="off">
+  <label>用户名<input name="username" required maxlength="40" autocomplete="username"></label>
+  <label>密码<input type="password" name="password" required maxlength="100" autocomplete="current-password"></label>
+  <button class="btn" type="submit">登录</button>
+</form>
+<p class="muted">仅限管理员。登录失败 5 次/15 分钟后会限流。</p>
+<%- include('partials/foot') %>

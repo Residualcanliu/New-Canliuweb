@@ -1,0 +1,59 @@
+<%- include('partials/head', { title: '笔记管理', session }) %>
+<h1>笔记管理</h1>
+<h2>新增栏目</h2>
+<form class="stack" method="post" action="/admin/chapters">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <div class="row">
+    <label>中文名<input name="label" required maxlength="20" placeholder="例如：算法"></label>
+    <label>英文名<input name="en" maxlength="30" placeholder="ALGORITHM"></label>
+  </div>
+  <button class="btn" type="submit">添加栏目</button>
+</form>
+
+<h2>栏目与条目</h2>
+<table>
+  <thead><tr><th style="width:180px">栏目</th><th>条目</th><th style="width:80px"></th></tr></thead>
+  <tbody>
+  <% if (!chapters.length) { %><tr><td colspan="3" class="muted">还没有栏目。</td></tr><% } %>
+  <% chapters.forEach(c => { const list = notes.filter(n => n.chapter_id === c.id); %>
+    <tr>
+      <td><b><%= c.label %></b><br><span class="muted"><%= c.en %></span></td>
+      <td>
+        <% if (!list.length) { %><span class="muted">暂无条目</span><% } %>
+        <% list.forEach(n => { %>
+          <div style="margin-bottom:10px">
+            <b><%= n.q %></b> <span class="muted"><%= n.tag %></span>
+            <form class="inline" method="post" action="/admin/notes/<%= n.id %>/delete">
+              <input type="hidden" name="_csrf" value="<%= csrf %>">
+              <button class="btn" type="submit">删除</button>
+            </form>
+          </div>
+        <% }) %>
+      </td>
+      <td>
+        <form method="post" action="/admin/chapters/<%= c.id %>/delete">
+          <input type="hidden" name="_csrf" value="<%= csrf %>">
+          <button class="btn no" type="submit">删栏目</button>
+        </form>
+      </td>
+    </tr>
+  <% }) %>
+  </tbody>
+</table>
+
+<h2>新增条目</h2>
+<form class="stack" method="post" action="/admin/notes">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <label>栏目
+    <select name="chapter_id" required>
+      <% chapters.forEach(c => { %><option value="<%= c.id %>"><%= c.label %></option><% }) %>
+    </select>
+  </label>
+  <div class="row">
+    <label>标签<input name="tag" maxlength="20" placeholder="数据库"></label>
+    <label>关键词（可空）<input name="q" required maxlength="200" placeholder="问题"></label>
+  </div>
+  <label>答案<textarea name="a" required maxlength="2000"></textarea></label>
+  <button class="btn" type="submit">添加条目</button>
+</form>
+<%- include('partials/foot') %>

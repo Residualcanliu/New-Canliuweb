@@ -1,0 +1,45 @@
+<%- include('partials/head', { title: '留言审核', session }) %>
+<h1>留言审核</h1>
+<div class="filters">
+  <% const tabs = [['pending','待审核'],['approved','已上线'],['rejected','已拒绝'],['all','全部']]; %>
+  <% tabs.forEach(([k,label]) => { %>
+    <a class="<%= filter === k ? 'on' : '' %>" href="/admin/messages?status=<%= k %>"><%= label %></a>
+  <% }) %>
+</div>
+<table>
+  <thead><tr><th style="width:64px">ID</th><th style="width:120px">名字</th><th>内容</th><th style="width:150px">时间 / 状态</th><th style="width:170px">操作</th></tr></thead>
+  <tbody>
+  <% if (!messages.length) { %>
+    <tr><td colspan="5" class="muted">暂无记录。</td></tr>
+  <% } %>
+  <% messages.forEach(m => { %>
+    <tr>
+      <td class="muted"><%= m.id %></td>
+      <td><%= m.name %></td>
+      <td><%= m.content %></td>
+      <td class="muted"><%= m.when %><br><%= m.status %><% if (m.x != null) { %> · <%= m.x %>, <%= m.y %><% } %></td>
+      <td>
+        <div class="actions">
+        <% if (m.status !== 'approved') { %>
+          <form class="inline" method="post" action="/admin/messages/<%= m.id %>/approve">
+            <input type="hidden" name="_csrf" value="<%= csrf %>"><input type="hidden" name="back" value="/admin/messages?status=<%= filter %>">
+            <button class="btn ok" type="submit">通过</button>
+          </form>
+        <% } %>
+        <% if (m.status !== 'rejected') { %>
+          <form class="inline" method="post" action="/admin/messages/<%= m.id %>/reject">
+            <input type="hidden" name="_csrf" value="<%= csrf %>"><input type="hidden" name="back" value="/admin/messages?status=<%= filter %>">
+            <button class="btn no" type="submit">拒绝</button>
+          </form>
+        <% } %>
+          <form class="inline" method="post" action="/admin/messages/<%= m.id %>/delete">
+            <input type="hidden" name="_csrf" value="<%= csrf %>"><input type="hidden" name="back" value="/admin/messages?status=<%= filter %>">
+            <button class="btn" type="submit">删除</button>
+          </form>
+        </div>
+      </td>
+    </tr>
+  <% }) %>
+  </tbody>
+</table>
+<%- include('partials/foot') %>
