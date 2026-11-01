@@ -40,7 +40,7 @@
 .contact-card p{font:9px var(--mono);letter-spacing:1px;color:var(--muted);margin:0}
 #contact .atlas-tools{right:var(--pad);bottom:5%}
 
-@media(max-width:700px){.skill-list{left:6%;right:6%;width:auto;top:auto;bottom:15%;grid-template-columns:1fr 1fr;max-height:30%;overflow:auto}.site #atlas .atlas-readout{display:none}.site #atlas .atlas-tools{left:6%;right:6%}.site-bio{display:none}}
+@media(max-width:700px){.skill-list{left:6%;right:6%;width:auto;top:auto;bottom:15%;grid-template-columns:1fr 1fr;max-height:30%;overflow:auto}.site #atlas .atlas-readout{display:none}.site #atlas .atlas-tools{left:6%;right:6%}}
 #skill-spec{font:10px/1.9 var(--mono);color:#2b3438;padding:0 12px 12px}
 
 /* 集字彩蛋 */
@@ -253,3 +253,11 @@
 .ow-tape{position:absolute;left:50%;width:42%;height:14px;translate:-50% 0;background:rgba(238,242,244,.62);backdrop-filter:blur(1.4px);box-shadow:0 1px 3px #22282b1c;border-top:1px solid #ffffffa6;border-bottom:1px solid #ffffff73;border-left:1px dashed #22282b26;border-right:1px dashed #22282b26;z-index:3}
 .ow-tape.t1{top:15%;rotate:-7deg}
 .ow-tape.t2{top:63%;rotate:5deg;width:33%}
+
+/* 超大视口 / 浏览器缩到很小：给画布一个上限并居中，避免版式被拉成一张无限大的纸 */
+body{display:grid;place-items:center;background:#e7eaea}
+#app{width:100%}
+#stage.site{max-width:2560px;max-height:1440px}
+@media(min-width:2601px),(min-height:1441px){
+  #stage.site{box-shadow:0 24px 80px #13234a1a;outline:1px solid #d8dedd}
+}

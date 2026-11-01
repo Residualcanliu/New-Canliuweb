@@ -249,7 +249,7 @@ const actions:Record<string,(el:HTMLElement)=>void>={
  fullscreen:()=>{void (document.fullscreenElement?document.exitFullscreen():stage.requestFullscreen()).catch(()=>toast('可使用 F11 进入全屏'));},
  'work-prev':()=>route.step(-1),'work-next':()=>route.step(1),'route-goto':el=>{const i=works.findIndex(w=>w.id===el.dataset.id);if(i>=0)route.select(i);},'route-seq':el=>route.seekStage(+el.dataset.seq!),'route-pins-clear':()=>route.clearPins(),
  recall:()=>{document.querySelectorAll('.p0 .flown').forEach(g=>{g.classList.remove('flown');g.classList.add('returning');});released.clear();countTo($('#skill-count'),0);},
- 'copy-mail':()=>{void navigator.clipboard?.writeText(P.contact.email).then(()=>toast('邮箱已复制'),()=>toast(P.contact.email));}
+ 'copy-mail':()=>{const task=navigator.clipboard?.writeText(P.contact.email);if(task)void task.then(()=>toast('邮箱已复制'),()=>toast(P.contact.email));else toast(P.contact.email);}
 };
 document.addEventListener('click',e=>{
  const t=e.target as HTMLElement;const b=t.closest<HTMLElement>('button,[data-action]');

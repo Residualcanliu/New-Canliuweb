@@ -220,7 +220,6 @@ export default function Lab() {
         >
           <Terminal />
         </Card>
-        <p className="lab-tip">组件真源码在 <code>src/lab/</code>· 标了用到的 hook，想抄就抄。</p>
       </div>
       <Notes />
     </div>
