@@ -1,7 +1,11 @@
 /* 功能页 · React 实验台 + 个人学习笔记
    沿用全站的纸张 / 钴蓝 / 等宽字标签语言，不改全局变量。 */
 
-.lab-root{position:absolute;inset:0;z-index:4}
+/* 这一层是全屏透明容器，层级高于散落字母（#glyphs z-index:3）。
+   若让它接收点击，会把整页盖住，字母 u 就点不到；因此容器透传，只有面板本身接收。 */
+.lab-root{position:absolute;inset:0;z-index:4;pointer-events:none}
+.lab{pointer-events:none}
+.lab>.lab-left,.lab>.notes{pointer-events:auto}
 .lab{
   position:absolute;left:calc(var(--pad) + 38px);right:var(--pad);
   top:clamp(92px,12.5vh,128px);bottom:clamp(16px,4vh,44px);
