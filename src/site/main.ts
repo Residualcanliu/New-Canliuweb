@@ -128,7 +128,7 @@ app.innerHTML=resolveMarkupAssets(`
   <div class="atlas-head"><span class="eyebrow" data-scramble>LAB / NOTES</span><h2>功能</h2></div>
  </section>
 
- <footer class="bottom-bar"><span class="edition">69 20 6c 6f 76 65 20 79 6f 75</span><nav aria-label="主导航">${PAGES.map(([m,cn,en],i)=>`<button data-action="${m}" data-nav="${m}" data-cursor="${en}"><small>0${i}</small><span data-scramble>${cn}</span></button>`).join('')}</nav></footer>
+ <footer class="bottom-bar"><div class="foot-left"><span class="edition">69 20 6c 6f 76 65 20 79 6f 75</span><a class="icp" href="https://beian.miit.gov.cn" target="_blank" rel="noopener noreferrer">粤ICP备2026181210号-1</a></div><nav aria-label="主导航">${PAGES.map(([m,cn,en],i)=>`<button data-action="${m}" data-nav="${m}" data-cursor="${en}"><small>0${i}</small><span data-scramble>${cn}</span></button>`).join('')}</nav></footer>
  <div id="transition-fx" aria-hidden="true"></div><div id="bloom" aria-hidden="true"></div><div id="ripples" aria-hidden="true"></div><div id="toast" role="status" aria-live="polite"></div>
 </main>`);
 

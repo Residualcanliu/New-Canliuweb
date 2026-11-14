@@ -22,9 +22,17 @@
 .site .topbar{align-items:flex-start;padding-top:38px;border-bottom:0}
 .site .topbar:after{content:"";position:absolute;left:0;right:0;top:var(--edge);height:1px;background:var(--line);pointer-events:none}
 .site .bottom-bar{height:var(--edge)}
+/* 页脚左侧：十六进制彩蛋 + 备案号，两者同排，窄屏只留备案号 */
+.site .foot-left{display:flex;align-items:center;gap:16px;min-width:0}
+.site .icp{font:8px var(--mono);letter-spacing:.8px;color:var(--muted);text-decoration:none;white-space:nowrap;transition:color .25s}
+.site .icp:hover{color:var(--cobalt)}
 @media(min-width:1800px){.site{--edge:92px;--screen-top:120px;--screen-bottom:100px}}
 @media(max-height:860px) and (min-width:901px){.site{--edge:64px;--screen-top:78px;--screen-bottom:67px}.site .topbar{padding-top:26px}}
-@media(max-width:700px){.site{--edge:64px;--screen-top:77px;--screen-bottom:76px}.site .topbar{padding-top:24px}}
+@media(max-width:700px){.site{--edge:64px;--screen-top:77px;--screen-bottom:76px}.site .topbar{padding-top:24px}.site .foot-left{gap:0}
+ .site .bottom-bar{flex-direction:column;justify-content:center;gap:3px}
+ .site .bottom-bar>.foot-left .edition{display:none}
+ .site .bottom-bar nav{width:100%}
+ .site .icp{font-size:7px;letter-spacing:.3px}}
 @media(max-height:560px) and (orientation:landscape){.site{--edge:52px;--screen-top:58px;--screen-bottom:54px}.site .topbar{padding-top:16px}}
 
 /* 留言板：把图版底色往上下各扩一截，盖掉分隔线与内容区之间的浅色带 */
